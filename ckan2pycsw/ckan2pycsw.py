@@ -39,6 +39,7 @@ except (KeyError, ValueError):
     PYCSW_CRON_HOUR_START = 4
 method = "nightly"
 URL = os.environ["CKAN_URL"]
+URL_METADATA = URL = os.environ["CKAN_URL_METADATA"]
 PYCSW_URL = os.environ["PYCSW_URL"]
 PYCSW_PORT = os.environ["PYCSW_PORT"]
 APP_DIR = os.environ.get("APP_DIR", "/app")
@@ -61,7 +62,7 @@ def get_datasets(base_url):
 
     Parameters
     ----------
-    base_url: str. The base URL of the CKAN instance.
+    base_url: str. The base URL of the CKAN instance to use in Metadata.
 
     Returns
     -------
@@ -140,7 +141,8 @@ def main():
                 d_dcat_type = dataset["dcat_type"].rsplit("/", 1)[-1]
                 logging.info(f"{log_module}:ckan2pycsw | Metadata: {dataset['name']} [DCAT Type: {d_dcat_type.capitalize()}]")
                 try:
-                    dataset_metadata =  Dataset(dataset_raw=dataset, base_url=URL, mappings_folder=MAPPINGS_FOLDER,  csw_schema=PYCSW_CKAN_SCHEMA)
+                    # Pass CKAN URL Metadata of the instance (e.g: https://myckan.com/catalog) instead of the URL of CKAN instance (e.g: http://localhost:5000)
+                    dataset_metadata =  Dataset(dataset_raw=dataset, base_url=URL_METADATA, mappings_folder=MAPPINGS_FOLDER,  csw_schema=PYCSW_CKAN_SCHEMA)
                     mcf_dict = read_mcf(dataset_metadata.render_template)
                     
                     # Select an output schema based on OUPUT_SCHEMA if not exists use ISO19139

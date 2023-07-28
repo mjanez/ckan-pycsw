@@ -27,7 +27,7 @@ Available components:
 
 ## Quick start
 ### With docker compose
-Copy the `.env.example` template and configure by changing the `.env` file. Change `PYCSW_URL` and `CKAN_URL`,  as well as the published port `PYCSW_PORT`, if needed.
+Copy the `.env.example` template and configure by changing the `.env` file. Change `PYCSW_URL` and `CKAN_URL`/`CKAN_URL_METADATA` (URL to retrieve/URL to include in Metadata),  as well as the published port `PYCSW_PORT`, if needed.
 
     ```shell
     cp .env.example .env

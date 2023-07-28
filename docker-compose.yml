@@ -18,6 +18,7 @@ services:
         - ./log:${APP_DIR}/log
         - ./metadata:${APP_DIR}/metadata
     restart: on-failure:3
+    network_mode: host
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:${PYCSW_PORT}"]
 networks:

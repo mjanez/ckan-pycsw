@@ -18,6 +18,7 @@ services:
     volumes:
         - ./log:${APP_DIR}/log
         - ./metadata:${APP_DIR}/metadata
+    network_mode: host
 networks:
   default:
     name: ckan2pycsw_default
