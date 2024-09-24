@@ -3,6 +3,7 @@ FROM ghcr.io/mjanez/ckan-pycsw:latest AS base
 LABEL maintainer="mnl.janez@gmail.com"
 
 # ckan-pycsw envvars
+ENV CKAN_PYCSW_VERSION=1.0.0
 ENV APP_DIR=/app
 ENV TZ=UTC
 ENV PYCSW_CKAN_SCHEMA=iso19139_inspire
@@ -13,6 +14,7 @@ ENV PYCSW_URL=http://localhost:${PYCSW_PORT}/
 ENV DEV_MODE=True
 ENV PYCSW_DEV_PORT=5678
 ENV TIMEOUT=300
+ENV SSL_UNVERIFIED_MODE=False
 
 WORKDIR ${APP_DIR}
 

@@ -21,6 +21,7 @@ import pkg_resources
 
 log_module = "[template]"
 APP_DIR = os.environ["APP_DIR"]
+LOG_DIR = APP_DIR + "/log"
 LOGGER = logging.getLogger(__name__)
 SCHEMAS_CKAN = pathlib.Path(__file__).resolve().parent.parent / 'schemas/ckan'
 SCHEMAS_PYGEOMETA = pathlib.Path(__file__).resolve().parent.parent / 'schemas/pygeometa'
@@ -115,18 +116,34 @@ def render_j2_template(mcf: dict, schema_type: str, url: str = None, template_di
             LOGGER.error(msg)
             raise RuntimeError(msg)
 
-        LOGGER.debug('Processing CKAN template to JSON')
-        mcf = update_object_lists(mcf)
-
         try:
+            LOGGER.debug('Processing CKAN template to JSON')
+            mcf = update_object_lists(mcf)
+            
             # Render the template and directly attempt to correct and deserialize the JSON string
-            mcf_dict = json.loads(re.sub(r'\\(?!["\\/bfnrtu])', r'\\\\', template.render(record=mcf)), strict=False)
+            rendered_template = template.render(record=mcf)
+            
+            # Remove trailing commas if any (not recommended, better to correct the template).
+            sanitized_json = re.sub(r',\s*([\]}])', r'\1', rendered_template)
+            
+            # JSON deserialize 
+            mcf_dict = json.loads(sanitized_json, strict=False)
         except json.JSONDecodeError as e:
             LOGGER.error("Error deserializing the template output: %s", e)
-            # Optionally: Save the problematic output for debugging
-            LOGGER.error("Problematic output: %s", template.render(record=mcf))
+            
+             # Optional: Save the generated JSON before deserialisation for debugging purposes.
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            error_file_name = f'error_rendered_output_{timestamp}.json'
+            debug_directory =  LOG_DIR / 'errors'
+            os.makedirs(debug_directory, exist_ok=True)
+            error_file_path = os.path.join(debug_directory, error_file_name)
+            
+            # Optional: Save the generated JSON before deserialisation for debugging purposes.
+            with open(error_file_path, 'w', encoding='utf-8') as f:
+                f.write(rendered_template)
+            LOGGER.error("Problematic output saved to: %s", error_file_path)
             raise
-
+        
         return mcf_dict
 
     if schema_type == 'pygeometa':
