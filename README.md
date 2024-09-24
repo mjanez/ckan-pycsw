@@ -18,7 +18,7 @@
 ## Overview
 Docker compose environment (based on [pycsw](https://github.com/geopython/pycsw)) for development and testing with CKAN Open Data portals.[^1]
 
-> [!NOTE]
+> [!TIP]
 > It can be easily tested with a CKAN-type Open Data portal deployment: [mjanez/ckan-docker](https://github.com/mjanez/ckan-docker)[^2].
 
 Available components:
@@ -29,15 +29,20 @@ Available components:
 ### With docker compose
 Copy the `.env.example` template and configure by changing the `.env` file. Change `PYCSW_URL` and `CKAN_URL`,  as well as the published port `PYCSW_PORT`, if needed.
 
-    ```shell
-    cp .env.example .env
-    ```
+```shell
+cp .env.example .env
+```
 
-Select the CKAN Schema (`PYCSW_CKAN_SCHEMA`), and the pycsw output schema (`PYCSW_OUPUT_SCHEMA`).
+Select the CKAN Schema (`PYCSW_CKAN_SCHEMA`), and the pycsw output schema (`PYCSW_OUPUT_SCHEMA`):
+
 - Default: 
     ```ini
     PYCSW_CKAN_SCHEMA=iso19139_geodcatap
     PYCSW_OUPUT_SCHEMA=iso19139_inspire
+
+    ...
+
+    SSL_UNVERIFIED_MODE=True
     ```
 - Avalaible:
   * CKAN metadata schema (`PYCSW_CKAN_SCHEMA`):
@@ -45,11 +50,17 @@ Select the CKAN Schema (`PYCSW_CKAN_SCHEMA`), and the pycsw output schema (`PYCS
     * `iso19139_base`: [WIP] Base schema.
 
   * pycsw metadata schema (`PYCSW_OUPUT_SCHEMA`):
-    * `iso19139_inspire`, **default**: Customised schema based on ISO 19139 INSPIRE metadata schema.
+    * `iso19139_inspire`, **default**: Customised schema based on ISO 19139 INSPIRE metadata schema. [^4]
     * `iso19139`: Standard pycsw schema based on ISO 19139.
 
-> [!NOTE]
-> The output pycsw schema (`iso19139_inspire`), to comply with INSPIRE ISO 19139 is WIP. The validation of the dataset/series is complete and conforms to the [INSPIRE reference validator](https://inspire.ec.europa.eu/validator/home/index.html) datasets and dataset series (Conformance Class 1, 2, 2b and 2c). In contrast, spatial data services still fail in only 1 dimension [WIP]. 
+Change `SSL_UNVERIFIED_MODE` to avoid SSL errors when using a self-signed certificate in CKAN `development`. 
+
+- Default: 
+    ```ini
+    SSL_UNVERIFIED_MODE=True
+    ```
+> [!WARNING] 
+> Enabling `SSL_UNVERIFIED_MODE` can expose your application to security risks by allowing unverified SSL certificates. Use this setting only in a trusted development environment and never in production.
 
 To deploy the environment, `docker compose` will build the latest source in the repo.
 
@@ -68,15 +79,13 @@ docker compose -f docker-compose.ghcr.yml --build
 docker compose up -d --build
 ```
 
-> [!NOTE]
+> [!TIP]
 > Deploy the dev (multistage build) `docker-compose.dev.yml` with:
 >
 >```bash
 > docker compose -f docker-compose.dev.yml up --build
 >```
-
-
-> [!NOTE]
+>
 >If needed, to build a specific container simply run:
 >
 >```bash
@@ -277,3 +286,4 @@ List of *containers*:
 [^1]: Extends the @frafra [coat2pycsw](https://github.com/COATnor/coat2pycsw) package.
 [^2]: A custom installation of Docker Compose with specific extensions for spatial data and [GeoDCAT-AP](https://github.com/SEMICeu/GeoDCAT-AP)/[INSPIRE](https://github.com/INSPIRE-MIF/technical-guidelines) metadata [profiles](https://en.wikipedia.org/wiki/Geospatial_metadata).
 [^3]: [INSPIRE dataset and service metadata](https://inspire.ec.europa.eu/id/document/tg/metadata-iso19139) based on ISO/TS 19139:2007. 
+[^4]: The output pycsw schema (`iso19139_inspire`), to comply with INSPIRE ISO 19139 is WIP. The validation of the dataset/series is complete and conforms to the [INSPIRE reference validator](https://inspire.ec.europa.eu/validator/home/index.html) datasets and dataset series (Conformance Class 1, 2, 2b and 2c). In contrast, spatial data services still fail in only 1 dimension [WIP].
