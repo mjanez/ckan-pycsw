@@ -21,6 +21,7 @@ import pkg_resources
 
 log_module = "[template]"
 APP_DIR = os.environ["APP_DIR"]
+LOG_DIR = APP_DIR + "/log"
 LOGGER = logging.getLogger(__name__)
 SCHEMAS_CKAN = pathlib.Path(__file__).resolve().parent.parent / 'schemas/ckan'
 SCHEMAS_PYGEOMETA = pathlib.Path(__file__).resolve().parent.parent / 'schemas/pygeometa'

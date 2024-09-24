@@ -38,6 +38,7 @@ try:
 except (KeyError, ValueError):
     PYCSW_CRON_HOUR_START = 4
 method = "nightly"
+CKAN_PYCSW_VERSION = os.environ.get("CKAN_PYCSW_VERSION", "1.0.0")
 URL = os.environ.get("CKAN_URL", 'http://localhost:5000/')
 PYCSW_PORT = os.environ.get("PYCSW_PORT", 8000)
 PYCSW_URL = os.environ.get("PYCSW_URL", f'http://localhost:{PYCSW_PORT}/')
@@ -54,6 +55,7 @@ OUPUT_SCHEMA = {
     "iso19139_inspire": ISO19139_inspireOutputSchema,
     "iso19139": ISO19139OutputSchema
 }
+SSL_UNVERIFIED_MODE = os.environ.get("SSL_UNVERIFIED_MODE", False)
 
 
 def get_datasets(base_url):
@@ -75,13 +77,17 @@ def get_datasets(base_url):
     try:
         if not base_url.endswith("/"):
             base_url += "/"
+            
+        if SSL_UNVERIFIED_MODE == True or SSL_UNVERIFIED_MODE == "True":
+            logging.warning(f"[INSECURE] SSL_UNVERIFIED_MODE:'{SSL_UNVERIFIED_MODE}'. Only if you trust the CKAN_URL: {base_url}.")  
+            
         package_search = urljoin(base_url, "api/3/action/package_search")
-        res = requests.get(package_search, params={"rows": 0})
+        res = requests.get(package_search, params={"rows": 0}, verify=not SSL_UNVERIFIED_MODE)
         res.raise_for_status()  # Raises a HTTPError if the response is not 200
         end = res.json().get("result", {}).get("count", 0)
         rows = 10
         for start in range(0, end, rows):
-            res = requests.get(package_search, params={"start": start, "rows": rows})
+            res = requests.get(package_search, params={"start": start, "rows": rows}, verify=not SSL_UNVERIFIED_MODE)
             res.raise_for_status()  # Check response status
             try:
                 datasets = res.json()["result"]["results"]
@@ -117,7 +123,7 @@ def main():
     None
     """
     log_file(APP_DIR + "/log")
-    logging.info(f"{log_module}:ckan2pycsw | Version: 0.1")
+    logging.info(f"{log_module}:ckan2pycsw | Version: {CKAN_PYCSW_VERSION}")
     pycsw_config = ConfigParser()
     pycsw_config.read_file(open(PYCSW_CONF))
     database_raw = pycsw_config.get("repository", "database")
