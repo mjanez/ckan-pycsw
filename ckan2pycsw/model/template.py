@@ -120,12 +120,18 @@ def render_j2_template(mcf: dict, schema_type: str, url: str = None, template_di
         mcf = update_object_lists(mcf)
 
         try:
-            # Render the template and directly attempt to correct and deserialize the JSON string
-            mcf_dict = json.loads(re.sub(r'\\(?!["\\/bfnrtu])', r'\\\\', template.render(record=mcf)), strict=False)
+            # Render the template
+            rendered_template = template.render(record=mcf)
+            # Clean trailing commas
+            cleaned_template = clean_trailing_commas(rendered_template)
+            # Escape backslashes
+            escaped_template = re.sub(r'\\(?!["\\/bfnrtu])', r'\\\\', cleaned_template)
+            # Deserialize the JSON string
+            mcf_dict = json.loads(escaped_template, strict=False)
         except json.JSONDecodeError as e:
             LOGGER.error("Error deserializing the template output: %s", e)
             # Optionally: Save the problematic output for debugging
-            LOGGER.error("Problematic output: %s", template.render(record=mcf))
+            LOGGER.error("Problematic output: %s", rendered_template)
             raise
 
         return mcf_dict
@@ -754,3 +760,8 @@ def get_localized_dataset_value(multilang_value, default_language, languages=Non
             localized_value[language] = multilang_value[language]
 
     return localized_value
+
+def clean_trailing_commas(json_string):
+    # Removes trailing commas in objects and arrays
+    json_string = re.sub(r',\s*([}\]])', r'\1', json_string)
+    return json_string

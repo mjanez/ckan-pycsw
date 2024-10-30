@@ -1,3 +1,15 @@
+{% macro render_field(field_name, field_value) %}
+    "{{ field_name }}": "{{ field_value }}"
+{% endmacro %}
+
+{% macro render_object(fields) %}
+    {
+        {%- for field in fields %}
+            {{ render_field(field[0], field[1]) }}{% if not loop.last %},{% endif %}
+        {%- endfor %}
+    }
+{% endmacro %}
+
 {
     {# INSPIRE ISO19139 Metadata Schema #}
     {% set language_iso19115 = record['language']|get_mapping_value_from_yaml_list(input_field="uri", output_field='iso_639_2', codelist="language",mappings_folder=mappings_folder + "/ckan_geodcatap") %}
@@ -8,36 +20,52 @@
     {% set dcat_type = record['dcat_type'].rsplit('/', 1)[-1] %}
     "mcf": {"version": 1.0},
     "metadata": {
+        {%- set metadata_fields = [] %}
+
         {% if record['identifier'] %}
-            "identifier": "{{ record['identifier'] }}",
+            {%- set _ = metadata_fields.append(('identifier', record['identifier'])) %}
         {% else %}
-            "identifier": "{{ record['id'] }}",
+            {%- set _ = metadata_fields.append(('identifier', record['id'])) %}
         {% endif %}
-        "language": "{{ language_2code }}",
+
+        {%- set _ = metadata_fields.append(('language', language_2code)) %}
+
         {% if language_alternate %}
-            "language_alternate": "{{ language_alternate }}",
+            {%- set _ = metadata_fields.append(('language_alternate', language_alternate)) %}
         {% endif %}
-        "charset": "UTF-8",
+
+        {%- set _ = metadata_fields.append(('charset', 'UTF-8')) %}
+
         {% if record['source'] %}
-            "parentidentifier": "{{ record['source'].rsplit('/', 1)[-1] }}",
+            {%- set parent_id = record['source'].rsplit('/', 1)[-1] %}
+            {%- set _ = metadata_fields.append(('parentidentifier', parent_id)) %}
         {% endif %}
-        "datestamp": "{{ record['metadata_modified']|normalize_datetime }}",
-        "dataseturi": "{{ url }}",
+
+        {%- set _ = metadata_fields.append(('datestamp', record['metadata_modified']|normalize_datetime)) %}
+        {%- set _ = metadata_fields.append(('dataseturi', url)) %}
+
         {% if dcat_type == 'service' %}
             {% if "catalog" in record['title'].lower() or "csw" in record['title'].lower() %}
-            "servicetype": "discovery",
+                {%- set _ = metadata_fields.append(('servicetype', 'discovery')) %}
             {% elif "wfs" in record['title'].lower() or "descarg" in record['title'].lower() %}
-            "servicetype": "download",
+                {%- set _ = metadata_fields.append(('servicetype', 'download')) %}
             {% elif "wms" in record['title'].lower() or "wmts" in record['title'].lower() or "wcs" in record['title'].lower() or "map" in record['title'].lower() %}
-            "servicetype": "view",
+                {%- set _ = metadata_fields.append(('servicetype', 'view')) %}
             {% else %}
-            "servicetype": "other",
+                {%- set _ = metadata_fields.append(('servicetype', 'other')) %}
             {% endif %}
         {% endif %}
-        "hierarchylevel": {
-            "value": "{{ dcat_type }}",
-            "uri": "{{ record['dcat_type'] }}"
-        }
+
+        {%- set hierarchylevel = {
+            "value": dcat_type,
+            "uri": record['dcat_type']
+        } %}
+        {%- set _ = metadata_fields.append(('hierarchylevel', hierarchylevel)) %}
+
+        {# Render all metadata fields with appropriate commas #}
+        {%- for field in metadata_fields %}
+            "{{ field[0] }}": {% if field[1] is mapping or field[1] is iterable and field[1] is not string %}{{ field[1] | tojson }}{% else %}"{{ field[1] }}" {% endif %}{% if not loop.last %},{% endif %}
+        {%- endfor %}
     },
     "spatial": {
          {% if record['reference_system'] is defined %}
@@ -313,37 +341,51 @@
         "maintenancefrequency": "continual"
     },
     "contact": {
-        {% if record['publisher_name'] is defined %}
-            "publisher": {
-                {% if record['publisher_name'] %}
-                "organization": "{{ record['publisher_name'] }}",
-                {% endif %}
-                {% if record['publisher_email'] %}
-                "email": "{{ record['publisher_email'] }}",
-                {% endif %}
-                {% if record['publisher_url'] %}
-                "url": "{{ record['publisher_url'] }}"
-                {% endif %}
-            },
+        {# Initialize a list for storing contact fields #}
+        {%- set contact_fields = [] %}
+    
+        {# Publisher #}
+        {% if record['publisher_name'] or record['publisher_email'] or record['publisher_url'] %}
+            {%- set publisher = {} %}
+            {% if record['publisher_name'] %}
+                {%- set _ = publisher.update({'organization': record['publisher_name']}) %}
+            {% endif %}
+            {% if record['publisher_email'] %}
+                {%- set _ = publisher.update({'email': record['publisher_email']}) %}
+            {% endif %}
+            {% if record['publisher_url'] %}
+                {%- set _ = publisher.update({'url': record['publisher_url']}) %}
+            {% endif %}
+            {%- set _ = contact_fields.append(('publisher', publisher)) %}
         {% endif %}
-        {% if record['author_name'] is defined %}
-            "author": {
-                {% if record['author_name'] %}
-                "individualname": "{{ record['author_name'] }}",
-                {% endif %}
-                {% if record['author_email'] %}
-                "email": "{{ record['author_email'] }}",
-                {% endif %}
-                {% if record['author_url'] %}
-                "url": "{{ record['author_url'] }}"
-                {% endif %}
-            },
+    
+        {# Author #}
+        {% if record['author_name'] or record['author_email'] or record['author_url'] %}
+            {%- set author = {} %}
+            {% if record['author_name'] %}
+                {%- set _ = author.update({'individualname': record['author_name']}) %}
+            {% endif %}
+            {% if record['author_email'] %}
+                {%- set _ = author.update({'email': record['author_email']}) %}
+            {% endif %}
+            {% if record['author_url'] %}
+                {%- set _ = author.update({'url': record['author_url']}) %}
+            {% endif %}
+            {%- set _ = contact_fields.append(('author', author)) %}
         {% endif %}
-        "pointOfContact": {
-            "organization": "{{ record['contact_name'] }}",
-            "email": "{{ record['contact_email'] }}",
-            "url": "{{ record['contact_url'] }}"
-        }
+    
+        {# Point of Contact (if always to be included) #}
+        {%- set pointOfContact = {
+            "organization": record['contact_name'],
+            "email": record['contact_email'],
+            "url": record['contact_url']
+        } %}
+        {%- set _ = contact_fields.append(('pointOfContact', pointOfContact)) %}
+    
+        {# Render all contact fields with appropriate commas #}
+        {%- for field in contact_fields %}
+            "{{ field[0] }}": {{ render_object(field[1].items()) }}{% if not loop.last %},{% endif %}
+        {%- endfor %}
     },
     "distribution": {
             {% for resource in record['resources'] %}

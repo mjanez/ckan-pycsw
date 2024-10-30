@@ -25,7 +25,7 @@ from model.dataset import Dataset
 from schemas.pygeometa.iso19139_inspire import ISO19139_inspireOutputSchema
 
 # debug
-import ptvsd
+#import ptvsd
 
 # Ennvars
 TZ = os.environ.get("TZ", "TZ")
@@ -231,14 +231,14 @@ def run_tasks():
         logging.error(f"{log_module}:ckan2pycsw | Error starting gunicorn: {e}")
 
 if __name__ == "__main__":
-    if str(DEV_MODE).lower() == "true":
-        # Allow other computers to attach to ptvsd at this IP address and port.
-        ptvsd.enable_attach(address=("0.0.0.0", PYCSW_DEV_PORT), redirect_output=True)
+    # if str(DEV_MODE).lower() == "true":
+    #     # Allow other computers to attach to ptvsd at this IP address and port.
+    #     ptvsd.enable_attach(address=("0.0.0.0", PYCSW_DEV_PORT), redirect_output=True)
 
-        # Pause the program until a remote debugger is attached
-        ptvsd.wait_for_attach()
-        main()
-    # Launch a cronjob 
-    else:
+    #     # Pause the program until a remote debugger is attached
+    #     ptvsd.wait_for_attach()
+    #     main()
+    # # Launch a cronjob 
+    # else:
         run_tasks()
         run_scheduler()
