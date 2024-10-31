@@ -55,7 +55,7 @@ jobs:
         run: echo "BRANCH=${BRANCH////_}" >> $GITHUB_ENV
 
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: ghcr.io/${{ github.repository }}:${{ github.head_ref }}
@@ -70,7 +70,7 @@ jobs:
           no-fail: true
 
       - name: Run Trivy container image vulnerability scanner
-        uses: aquasecurity/trivy-action@0.17.0
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.BRANCH }}
           format: sarif
