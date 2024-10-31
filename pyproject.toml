@@ -18,6 +18,7 @@ dependencies = [
     "simplejson>=3.19.1",
     "apscheduler>=3.10.1",
     "psutil>=5.9.5",
+    "urllib3>=1.26.20",
 ]
 requires-python = ">=3.9"
 license = {text = "GPLv3"}
@@ -32,4 +33,3 @@ build-backend = "pdm.pep517.api"
 
 [tool]
 [tool.pdm]
-[tool.pdm.dev-dependencies]

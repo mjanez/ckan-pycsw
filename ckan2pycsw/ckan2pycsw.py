@@ -7,6 +7,8 @@ import os
 from datetime import datetime, time
 import subprocess
 import time
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 # third-party libraries
 import psutil
@@ -58,6 +60,18 @@ OUPUT_SCHEMA = {
 SSL_UNVERIFIED_MODE = os.environ.get("SSL_UNVERIFIED_MODE", False)
 
 
+session = requests.Session()
+retries = Retry(
+    total=5,
+    backoff_factor=1,
+    status_forcelist=[502, 503, 504],
+    allowed_methods=["HEAD", "GET", "OPTIONS"]
+)
+adapter = HTTPAdapter(max_retries=retries)
+session.mount("https://", adapter)
+session.mount("http://", adapter)
+
+
 def get_datasets(base_url):
     """
     Retrieve a generator of CKAN datasets from the specified CKAN instance.
@@ -78,30 +92,38 @@ def get_datasets(base_url):
         if not base_url.endswith("/"):
             base_url += "/"
             
-        if SSL_UNVERIFIED_MODE == True or SSL_UNVERIFIED_MODE == "True":
-            logging.warning(f"[INSECURE] SSL_UNVERIFIED_MODE:'{SSL_UNVERIFIED_MODE}'. Only if you trust the CKAN_URL: {base_url}.")  
+        if SSL_UNVERIFIED_MODE in [True, "True"]:
+            logging.warning(f"[INSECURE] SSL_UNVERIFIED_MODE:'{SSL_UNVERIFIED_MODE}'. Solo si confías en CKAN_URL: {base_url}.")  
             
         package_search = urljoin(base_url, "api/3/action/package_search")
-        res = requests.get(package_search, params={"rows": 0}, verify=not SSL_UNVERIFIED_MODE)
-        res.raise_for_status()  # Raises a HTTPError if the response is not 200
+        
+        # Usar la sesión configurada con reintentos y timeout
+        res = session.get(package_search, params={"rows": 0}, verify=not SSL_UNVERIFIED_MODE, timeout=10)
+        res.raise_for_status()
         end = res.json().get("result", {}).get("count", 0)
-        rows = 10
+        rows = 100  # Number of files
         for start in range(0, end, rows):
-            res = requests.get(package_search, params={"start": start, "rows": rows}, verify=not SSL_UNVERIFIED_MODE)
-            res.raise_for_status()  # Check response status
+            logging.info(f"Fetching datasets with start={start} and rows={rows}")  # Log de progreso
             try:
+                res = session.get(package_search, params={"start": start, "rows": rows}, verify=not SSL_UNVERIFIED_MODE, timeout=30)
+                res.raise_for_status()
                 datasets = res.json()["result"]["results"]
-            except ValueError as e:  # Catch JSON decode error
-                logging.error(f"Error decoding JSON from response: {e}")
-                continue  # Skip to the next iteration
+            except ValueError as e:
+                logging.error(f"Error al decodificar JSON: {e}")
+                continue
+            except requests.exceptions.RequestException as e:
+                logging.error(f"Request error: {e}", exc_info=True)
+                continue
 
             for dataset in datasets:
                 if dataset.get("type") == "dataset":
                     yield dataset
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Request error while communicating with CKAN instance {base_url}: {e}")
+    except requests.exceptions.Timeout:
+        logging.error(f"Timeout error for request starting at {start}", exc_info=True)
+    except requests.exceptions.ConnectionError:
+        logging.error(f"Connection error for request starting at {start}", exc_info=True)
     except Exception as e:
-        logging.error(f"Unexpected error: {e}")
+        logging.error(f"Unexpected error at start={start}: {e}", exc_info=True)
 
 def main():
     """
