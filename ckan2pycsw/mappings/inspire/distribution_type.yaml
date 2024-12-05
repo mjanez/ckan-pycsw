@@ -359,6 +359,12 @@
    label: ESIP collection cast
    url: 
 -
+   format: JSON
+   identifier: json
+   uri: 
+   label: The JavaScript Object Notation (JSON) Data Interchange Forma
+   url: https://datatracker.ietf.org/doc/html/rfc7159
+-
    format: TILEJSON
    identifier: tilejson:2.0.0
    uri: 
