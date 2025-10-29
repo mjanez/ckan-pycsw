@@ -122,26 +122,27 @@
               </gmd:code>
             </gmd:MD_Identifier>
           </gmd:identifier>
+          {# Publisher (dct:publisher) - Role: publisher #}
           {% if record['contact']['publisher'] %}
-          {% set distributor =record['contact']['publisher'] %}
+          {% set publisher = record['contact']['publisher'] %}
             <gmd:citedResponsibleParty>
                 <gmd:CI_ResponsibleParty>
                     <gmd:organisationName>
-                      <gco:CharacterString>{{ distributor['organization'] }}</gco:CharacterString>
+                      <gco:CharacterString>{{ publisher['organization'] }}</gco:CharacterString>
                     </gmd:organisationName>
                     <gmd:contactInfo>
                       <gmd:CI_Contact>
                           <gmd:address>
                             <gmd:CI_Address>
                                 <gmd:electronicMailAddress>
-                                  <gco:CharacterString>{{ distributor['email'] }}</gco:CharacterString>
+                                  <gco:CharacterString>{{ publisher['email'] }}</gco:CharacterString>
                                 </gmd:electronicMailAddress>
                             </gmd:CI_Address>
                           </gmd:address>
                           <gmd:onlineResource>
                             <gmd:CI_OnlineResource>
                               <gmd:linkage>
-                                <gmd:URL>{{ distributor['url']|e }}</gmd:URL>
+                                <gmd:URL>{{ publisher['url']|e }}</gmd:URL>
                               </gmd:linkage>
                               <gmd:protocol>
                                 <gco:CharacterString>WWW:LINK</gco:CharacterString>
@@ -155,7 +156,51 @@
                     </gmd:contactInfo>
                     <gmd:role>
                       <gmd:CI_RoleCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_RoleCode"
-                                        codeListValue="distributor"/>
+                                        codeListValue="publisher">Publisher</gmd:CI_RoleCode>
+                    </gmd:role>
+                </gmd:CI_ResponsibleParty>
+            </gmd:citedResponsibleParty>
+          {% endif %}
+          {# Author (dct:creator) - Role: author #}
+          {% if record['contact'].get('author') %}
+          {% set author = record['contact']['author'] %}
+            <gmd:citedResponsibleParty>
+                <gmd:CI_ResponsibleParty>
+                    {% if author.get('individualname') %}
+                    <gmd:individualName>
+                      <gco:CharacterString>{{ author['individualname'] }}</gco:CharacterString>
+                    </gmd:individualName>
+                    {% endif %}
+                    {% if author.get('organization') %}
+                    <gmd:organisationName>
+                      <gco:CharacterString>{{ author['organization'] }}</gco:CharacterString>
+                    </gmd:organisationName>
+                    {% endif %}
+                    <gmd:contactInfo>
+                      <gmd:CI_Contact>
+                          <gmd:address>
+                            <gmd:CI_Address>
+                                {% if author.get('email') %}
+                                <gmd:electronicMailAddress>
+                                  <gco:CharacterString>{{ author['email'] }}</gco:CharacterString>
+                                </gmd:electronicMailAddress>
+                                {% endif %}
+                            </gmd:CI_Address>
+                          </gmd:address>
+                          {% if author.get('url') %}
+                          <gmd:onlineResource>
+                            <gmd:CI_OnlineResource>
+                              <gmd:linkage>
+                                <gmd:URL>{{ author['url']|e }}</gmd:URL>
+                              </gmd:linkage>
+                            </gmd:CI_OnlineResource>
+                          </gmd:onlineResource>
+                          {% endif %}
+                      </gmd:CI_Contact>
+                    </gmd:contactInfo>
+                    <gmd:role>
+                      <gmd:CI_RoleCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_RoleCode"
+                                        codeListValue="author">Author</gmd:CI_RoleCode>
                     </gmd:role>
                 </gmd:CI_ResponsibleParty>
             </gmd:citedResponsibleParty>
@@ -167,6 +212,16 @@
         </gmd:CI_Citation>
       </gmd:citation>
       {{ cs.get_freetext('abstract', record['metadata']['language_alternate'], get_charstring(record['identification'].get('abstract'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
+      {# Purpose (gmd:purpose) - ISO19115 #}
+      {% if record['identification'].get('purpose') %}
+      {{ cs.get_freetext('purpose', record['metadata']['language_alternate'], get_charstring(record['identification'].get('purpose'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
+      {% endif %}
+      {# Credit (gmd:credit) - ISO19115 #}
+      {% if record['identification'].get('credit') %}
+      <gmd:credit>
+        <gco:CharacterString>{{ record['identification']['credit'] }}</gco:CharacterString>
+      </gmd:credit>
+      {% endif %}
       {% if resource_type != "service" %}
         <gmd:status>
           <gmd:MD_ProgressCode codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_ProgressCode" codeSpace="ISOTC211/19115" codeListValue="{{ record['identification']['status'] }}">{{ record['identification']['status'] }}</gmd:MD_ProgressCode>
@@ -178,6 +233,17 @@
         <gmd:pointOfContact>
 
         {# Contact Point #}
+        {% include "contact.j2" %}
+
+        </gmd:pointOfContact>
+      {% endif %}
+      {# Distributor (dcat:contactPoint with role distributor) #}
+      {% if record['contact'].get('distributor') %}
+        {% set contact = record['contact']['distributor'] %}
+        {% set role = 'distributor' %}
+        <gmd:pointOfContact>
+
+        {# Distributor Contact #}
         {% include "contact.j2" %}
 
         </gmd:pointOfContact>
@@ -204,6 +270,59 @@
               </gmd:fileName>
           </gmd:MD_BrowseGraphic>
         </gmd:graphicOverview>
+      {% endif %}
+      {# HVD Free Keyword - Applicable Legislation Link #}
+      {% if record['identification'].get('applicablelegislation') %}
+        {% for legislation in record['identification']['applicablelegislation'] %}
+          {% if 'http://data.europa.eu/eli/reg_impl/2023/138/oj' in legislation %}
+        <gmd:descriptiveKeywords>
+          <gmd:MD_Keywords>
+            <gmd:keyword>
+              <gmx:Anchor xlink:href="{{ legislation }}">High-value dataset</gmx:Anchor>
+            </gmd:keyword>
+          </gmd:MD_Keywords>
+        </gmd:descriptiveKeywords>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+      {# High-Value Dataset (HVD) Category - Thesaurus-based keyword block #}
+      {% if record['identification'].get('hvdcategory') %}
+        <gmd:descriptiveKeywords>
+          <gmd:MD_Keywords>
+            {% for hvd_cat in record['identification']['hvdcategory'] %}
+              <gmd:keyword xsi:type="gmd:PT_FreeText_PropertyType">
+                <gmx:Anchor xlink:href="{{ hvd_cat['uri'] }}">{{ hvd_cat['label'] }}</gmx:Anchor>
+                <gmd:PT_FreeText>
+                  <gmd:textGroup>
+                    <gmd:LocalisedCharacterString locale="#{{ default_label_lang.upper() }}">{{ hvd_cat['label'] }}</gmd:LocalisedCharacterString>
+                  </gmd:textGroup>
+                </gmd:PT_FreeText>
+              </gmd:keyword>
+            {% endfor %}
+            <gmd:thesaurusName>
+              <gmd:CI_Citation>
+                <gmd:title xsi:type="gmd:PT_FreeText_PropertyType">
+                  <gmx:Anchor xlink:href="http://data.europa.eu/bna/asd487ae75">High-value dataset categories</gmx:Anchor>
+                  <gmd:PT_FreeText>
+                    <gmd:textGroup>
+                      <gmd:LocalisedCharacterString locale="#{{ default_label_lang.upper() }}">High-value dataset categories</gmd:LocalisedCharacterString>
+                    </gmd:textGroup>
+                  </gmd:PT_FreeText>
+                </gmd:title>
+                <gmd:date>
+                  <gmd:CI_Date>
+                    <gmd:date>
+                      <gco:Date>2023-09-27</gco:Date>
+                    </gmd:date>
+                    <gmd:dateType>
+                      <gmd:CI_DateTypeCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_DateTypeCode" codeListValue="publication">Publication</gmd:CI_DateTypeCode>
+                    </gmd:dateType>
+                  </gmd:CI_Date>
+                </gmd:date>
+              </gmd:CI_Citation>
+            </gmd:thesaurusName>
+          </gmd:MD_Keywords>
+        </gmd:descriptiveKeywords>
       {% endif %}
       {% for key, value in record['identification']['keywords'].items() %}
         <gmd:descriptiveKeywords>
@@ -288,6 +407,16 @@
           </gmd:otherConstraints>
         </gmd:MD_LegalConstraints>
       </gmd:resourceConstraints>
+      {# Resource Other Constraints (gmd:resourceOtherConstraints) - ISO19115 #}
+      {% if record['identification'].get('resourceotherconstraints') %}
+      <gmd:resourceConstraints>
+        <gmd:MD_LegalConstraints>
+          <gmd:otherConstraints>
+            <gco:CharacterString>{{ record['identification']['resourceotherconstraints'] }}</gco:CharacterString>
+          </gmd:otherConstraints>
+        </gmd:MD_LegalConstraints>
+      </gmd:resourceConstraints>
+      {% endif %}
       {% if resource_type != 'service' %}
         <gmd:spatialRepresentationType>
           <gmd:MD_SpatialRepresentationTypeCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_SpatialRepresentationTypeCode" codeListValue="{{ record['spatial']['datatype'] }}">{{ record['spatial']['datatype']|capitalize }}</gmd:MD_SpatialRepresentationTypeCode>
@@ -313,9 +442,23 @@
         </gmd:topicCategory>
         {% endfor %}
       {% endif %}
+      {# Resource Specific Usage (gmd:resourceSpecificUsage) - ISO19115 #}
+      {% if record['identification'].get('resourcespecificusage') %}
+      <gmd:resourceSpecificUsage>
+        <gmd:MD_Usage>
+          <gmd:specificUsage>
+            <gco:CharacterString>{{ record['identification']['resourcespecificusage'] }}</gco:CharacterString>
+          </gmd:specificUsage>
+        </gmd:MD_Usage>
+      </gmd:resourceSpecificUsage>
+      {% endif %}
       {% if resource_type == 'service' %}
         <srv:serviceType>
+          {% if record['identification'].get('servicetype') %}
+          <gco:LocalName codeSpace="http://inspire.ec.europa.eu/metadata-codelist/SpatialDataServiceType">{{ record['identification']['servicetype']['uri'].rsplit('/', 1)[-1] }}</gco:LocalName>
+          {% else %}
           <gco:LocalName codeSpace="http://inspire.ec.europa.eu/metadata-codelist/SpatialDataServiceType">other</gco:LocalName>
+          {% endif %}
         </srv:serviceType>
       {% endif %}
       {% if resource_type == "service" %}

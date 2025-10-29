@@ -27,7 +27,7 @@ from model.dataset import Dataset
 from schemas.pygeometa.iso19139_inspire import ISO19139_inspireOutputSchema
 
 # debug
-#import ptvsd
+import ptvsd
 
 # Ennvars
 TZ = os.environ.get("TZ", "TZ")
@@ -45,10 +45,10 @@ URL = os.environ.get("CKAN_URL", 'http://localhost:5000/')
 PYCSW_PORT = os.environ.get("PYCSW_PORT", 8000)
 PYCSW_URL = os.environ.get("PYCSW_URL", f'http://localhost:{PYCSW_PORT}/')
 PYCSW_DEV_PORT = os.environ.get("PYCSW_DEV_PORT", 5678)
-APP_DIR = os.environ.get("APP_DIR", "/app")
+APP_DIR = os.environ.get("APP_DIR", "/srv/app")
 CKAN_API = "api/3/action/package_search"
 PYCSW_CKAN_SCHEMA = os.environ.get("PYCSW_CKAN_SCHEMA", "iso19139_geodcatap")
-PYCSW_OUPUT_SCHEMA = os.environ.get("PYCSW_OUPUT_SCHEMA", "iso19139_inspire")
+PYCSW_OUTPUT_SCHEMA = os.environ.get("PYCSW_OUTPUT_SCHEMA", "iso19139_inspire")
 DEV_MODE = os.environ.get("DEV_MODE", False)
 PYCSW_CONF = f"{APP_DIR}/pycsw.conf.template" if DEV_MODE == "True" else "pycsw.conf"
 MAPPINGS_FOLDER = "ckan2pycsw/mappings"
@@ -183,8 +183,8 @@ def main():
                     mcf_dict = read_mcf(dataset_metadata.render_template)
                     
                     # Select an output schema based on OUPUT_SCHEMA if not exists use ISO19139
-                    if PYCSW_OUPUT_SCHEMA in OUPUT_SCHEMA:
-                        iso_os = OUPUT_SCHEMA[PYCSW_OUPUT_SCHEMA]()
+                    if PYCSW_OUTPUT_SCHEMA in OUPUT_SCHEMA:
+                        iso_os = OUPUT_SCHEMA[PYCSW_OUTPUT_SCHEMA]()
                         xml_string = iso_os.write(mcf=mcf_dict, mappings_folder=MAPPINGS_FOLDER)
                     else:
                         iso_os = ISO19139OutputSchema()
@@ -253,14 +253,14 @@ def run_tasks():
         logging.error(f"{log_module}:ckan2pycsw | Error starting gunicorn: {e}")
 
 if __name__ == "__main__":
-    # if str(DEV_MODE).lower() == "true":
-    #     # Allow other computers to attach to ptvsd at this IP address and port.
-    #     ptvsd.enable_attach(address=("0.0.0.0", PYCSW_DEV_PORT), redirect_output=True)
+    if str(DEV_MODE).lower() == "true":
+        # Allow other computers to attach to ptvsd at this IP address and port.
+        ptvsd.enable_attach(address=("0.0.0.0", PYCSW_DEV_PORT), redirect_output=True)
 
-    #     # Pause the program until a remote debugger is attached
-    #     ptvsd.wait_for_attach()
-    #     main()
-    # # Launch a cronjob 
-    # else:
+        # Pause the program until a remote debugger is attached
+        ptvsd.wait_for_attach()
+        main()
+    # Launch a cronjob 
+    else:
         run_tasks()
         run_scheduler()

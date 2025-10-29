@@ -11,3 +11,5 @@ metadata/*
 samples
 .env
 .pdm-python
+.env.*
+doc/dev/*

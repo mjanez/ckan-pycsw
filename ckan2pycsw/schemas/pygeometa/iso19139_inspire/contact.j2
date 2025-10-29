@@ -1,32 +1,73 @@
 <gmd:CI_ResponsibleParty>
   {{ cs.get_freetext('individualName', record['metadata']['language_alternate'], get_charstring(contact.get('individualname'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
   {{ cs.get_freetext('organisationName', record['metadata']['language_alternate'], get_charstring(contact.get('organization'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
+  {# Position name - support both 'positionname' and 'position' fields #}
+  {% if contact.get('position') %}
+  {{ cs.get_freetext('positionName', record['metadata']['language_alternate'], get_charstring(contact.get('position'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
+  {% elif contact.get('positionname') %}
   {{ cs.get_freetext('positionName', record['metadata']['language_alternate'], get_charstring(contact.get('positionname'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
+  {% endif %}
   <gmd:contactInfo>
     <gmd:CI_Contact>
-      {% if contact['phone'] and contact['fax']%}
+      {# Phone - support both old format (phone+fax) and new format (phone only) #}
+      {% if contact.get('phone') or contact.get('fax') %}
       <gmd:phone>
         <gmd:CI_Telephone>
+          {% if contact.get('phone') %}
           <gmd:voice>
             <gco:CharacterString>{{ contact['phone'] }}</gco:CharacterString>
           </gmd:voice>
+          {% endif %}
+          {% if contact.get('fax') %}
           <gmd:facsimile>
             <gco:CharacterString>{{ contact['fax'] }}</gco:CharacterString>
           </gmd:facsimile>
+          {% endif %}
         </gmd:CI_Telephone>
       </gmd:phone>
       {% endif %}
       <gmd:address>
         <gmd:CI_Address>
-          {{ cs.get_freetext('deliveryPoint', record['metadata']['language_alternate'], get_charstring(contact.get('address'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
-          {{ cs.get_freetext('city', record['metadata']['language_alternate'], get_charstring(contact.get('city'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
-          {{ cs.get_freetext('administrativeArea', record['metadata']['language_alternate'], get_charstring(contact.get('administrativearea'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
-          {% if contact['postalcode'] %}
-          <gmd:postalCode>
-            <gco:CharacterString>{{ contact['postalcode'] }}</gco:CharacterString>
-          </gmd:postalCode>
+          {# Support nested address structure or flat fields #}
+          {% if contact.get('address') and contact['address'] is mapping %}
+            {# Nested structure: contact['address']['deliverypoint'] #}
+            {% if contact['address'].get('deliverypoint') %}
+            {{ cs.get_freetext('deliveryPoint', record['metadata']['language_alternate'], get_charstring(contact['address'].get('deliverypoint'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
+            {% endif %}
+            {% if contact['address'].get('city') %}
+            {{ cs.get_freetext('city', record['metadata']['language_alternate'], get_charstring(contact['address'].get('city'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
+            {% endif %}
+            {% if contact['address'].get('administrativearea') %}
+            {{ cs.get_freetext('administrativeArea', record['metadata']['language_alternate'], get_charstring(contact['address'].get('administrativearea'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
+            {% endif %}
+            {% if contact['address'].get('postalcode') %}
+            <gmd:postalCode>
+              <gco:CharacterString>{{ contact['address']['postalcode'] }}</gco:CharacterString>
+            </gmd:postalCode>
+            {% endif %}
+            {% if contact['address'].get('country') %}
+            {{ cs.get_freetext('country', record['metadata']['language_alternate'], get_charstring(contact['address'].get('country'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
+            {% endif %}
+          {% else %}
+            {# Flat structure: contact['address'] as string, contact['city'], etc. #}
+            {% if contact.get('address') and contact['address'] is string %}
+            {{ cs.get_freetext('deliveryPoint', record['metadata']['language_alternate'], get_charstring(contact.get('address'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
+            {% endif %}
+            {% if contact.get('city') %}
+            {{ cs.get_freetext('city', record['metadata']['language_alternate'], get_charstring(contact.get('city'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
+            {% endif %}
+            {% if contact.get('administrativearea') %}
+            {{ cs.get_freetext('administrativeArea', record['metadata']['language_alternate'], get_charstring(contact.get('administrativearea'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
+            {% endif %}
+            {% if contact.get('postalcode') %}
+            <gmd:postalCode>
+              <gco:CharacterString>{{ contact['postalcode'] }}</gco:CharacterString>
+            </gmd:postalCode>
+            {% endif %}
+            {% if contact.get('country') %}
+            {{ cs.get_freetext('country', record['metadata']['language_alternate'], get_charstring(contact.get('country'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
+            {% endif %}
           {% endif %}
-          {{ cs.get_freetext('country', record['metadata']['language_alternate'], get_charstring(contact.get('country'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
           {{ cs.get_freetext('electronicMailAddress', record['metadata']['language_alternate'], get_charstring(contact.get('email'), record['metadata']['language'], record['metadata']['language_alternate'])) }}
         </gmd:CI_Address>
       </gmd:address>

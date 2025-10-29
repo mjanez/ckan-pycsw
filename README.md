@@ -33,12 +33,12 @@ Copy the `.env.example` template and configure by changing the `.env` file. Chan
 cp .env.example .env
 ```
 
-Select the CKAN Schema (`PYCSW_CKAN_SCHEMA`), and the pycsw output schema (`PYCSW_OUPUT_SCHEMA`):
+Select the CKAN Schema (`PYCSW_CKAN_SCHEMA`), and the pycsw output schema (`PYCSW_OUTPUT_SCHEMA`):
 
 - Default: 
     ```ini
     PYCSW_CKAN_SCHEMA=iso19139_geodcatap
-    PYCSW_OUPUT_SCHEMA=iso19139_inspire
+    PYCSW_OUTPUT_SCHEMA=iso19139_inspire
 
     ...
 
@@ -49,7 +49,7 @@ Select the CKAN Schema (`PYCSW_CKAN_SCHEMA`), and the pycsw output schema (`PYCS
     * `iso19139_geodcatap`, **default**: [WIP] Schema based on [GeoDCAT-AP custom dataset schema](https://github.com/mjanez/ckanext-scheming).
     * `iso19139_base`: [WIP] Base schema.
 
-  * pycsw metadata schema (`PYCSW_OUPUT_SCHEMA`):
+  * pycsw metadata schema (`PYCSW_OUTPUT_SCHEMA`):
     * `iso19139_inspire`, **default**: Customised schema based on ISO 19139 INSPIRE metadata schema. [^4]
     * `iso19139`: Standard pycsw schema based on ISO 19139.
 
@@ -154,7 +154,7 @@ You can customise and extend the metadata schemas that serve as templates to imp
 
     ```ini
     PYCSW_CKAN_SCHEMA=iso19139_spain
-    PYCSW_OUPUT_SCHEMA=iso19139
+    PYCSW_OUTPUT_SCHEMA=iso19139
     ```
 
 
@@ -222,11 +222,11 @@ New metadata schemas can be extended or added to convert elements extracted from
     iso19139_spain: iso19139_spain
     ```
 
-7. Modify `.env` to select the new `PYCSW_OUPUT_SCHEMA`:
+7. Modify `.env` to select the new `PYCSW_OUTPUT_SCHEMA`:
 
     ```ini
     PYCSW_CKAN_SCHEMA=iso19139_geodcatap
-    PYCSW_OUPUT_SCHEMA=iso19139_spain
+    PYCSW_OUTPUT_SCHEMA=iso19139_spain
     ```
 
 ## Test

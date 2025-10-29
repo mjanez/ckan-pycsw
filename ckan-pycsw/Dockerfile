@@ -8,7 +8,7 @@ ENV USER_GID=$USER_UID
 
 # ckan-pycsw envvars
 ENV CKAN_PYCSW_VERSION=1.0.0
-ENV APP_DIR=/app
+ENV APP_DIR=/srv/app
 ENV TZ=UTC
 RUN echo ${TZ} > /etc/timezone
 ENV PYCSW_CKAN_SCHEMA=iso19139_inspire
