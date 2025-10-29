@@ -1,4 +1,6 @@
-version: "3"
+volumes:
+  ckan_pycsw_logs:
+  ckan_pycsw_metadata:
 
 services:
   ckan2pycsw:
@@ -16,8 +18,8 @@ services:
     ports:
       - "0.0.0.0:${PYCSW_PORT}:${PYCSW_PORT}"
     volumes:
-        - ./log:${APP_DIR}/log
-        - ./metadata:${APP_DIR}/metadata
+        - ckan_pycsw_logs:${APP_DIR}/log
+        - ckan_pycsw_metadata:${APP_DIR}/metadata
     restart: on-failure:3
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:${PYCSW_PORT}"]
