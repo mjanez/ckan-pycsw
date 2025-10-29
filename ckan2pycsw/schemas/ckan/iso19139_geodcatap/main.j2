@@ -22,8 +22,11 @@
     "metadata": {
         {%- set metadata_fields = [] %}
 
+        {# Use correct identifier (not URL) - Task #2 and #4 #}
         {% if record['identifier'] %}
             {%- set _ = metadata_fields.append(('identifier', record['identifier'])) %}
+        {% elif record['inspire_id'] %}
+            {%- set _ = metadata_fields.append(('identifier', record['inspire_id'])) %}
         {% else %}
             {%- set _ = metadata_fields.append(('identifier', record['id'])) %}
         {% endif %}
@@ -212,7 +215,7 @@
                     {% set _ = keywords_spatialscope.append(spatial_keyword) %}
                 {% elif 'spatialdataservice ' in keyword.lower() %}
                     {% set spatialdataservice_keyword = {
-                        "label": keyword|get_mapping_value_from_yaml_list(input_field="uri", output_field='label', codelist="spatial_data_service_category",mappings_folder=mappings_folder + "/ckan_geodcatap"),
+                        "label": keyword|get_mapping_value_from_yaml_list(input_field="uri", output_field='label', codelist="spatial_data_service",mappings_folder=mappings_folder + "/inspire"),
                         "value": keyword.rsplit('/', 1)[-1],
                         "uri": keyword
                     } %}
@@ -254,6 +257,12 @@
                         "date": "2008-12-03"
                     }
                 },
+                {% if service_type_detected %}
+                "servicetype": {
+                    "uri": "{{ service_type_detected['uri'] }}",
+                    "label": "{{ service_type_detected['label'] }}"
+                },
+                {% endif %}
             {% endif %}
             {# Spatial Scope #}
             "spatialscope": {
@@ -308,6 +317,35 @@
             {% endif %}
         },
         "fees": "None",
+        {# HVD Fields - Task #12 #}
+        {% if record['hvd_category'] %}
+            "hvdcategory": [
+                {% if record['hvd_category'] is string %}
+                    {
+                        "uri": "{{ record['hvd_category'] }}",
+                        "label": "{{ record['hvd_category']|get_mapping_value_from_yaml_list(input_field='uri', output_field='label', codelist='hvd_category',mappings_folder=mappings_folder + "/ckan_geodcatap") or record['hvd_category'].rsplit('/', 1)[-1] }}"
+                    }
+                {% else %}
+                    {% for hvd_cat in record['hvd_category'] %}
+                    {
+                        "uri": "{{ hvd_cat }}",
+                        "label": "{{ hvd_cat|get_mapping_value_from_yaml_list(input_field='uri', output_field='label', codelist='hvd_category',mappings_folder=mappings_folder + "/ckan_geodcatap") or hvd_cat.rsplit('/', 1)[-1] }}"
+                    }{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                {% endif %}
+            ],
+        {% endif %}
+        {% if record['applicable_legislation'] %}
+            "applicablelegislation": [
+                {% if record['applicable_legislation'] is string %}
+                    "{{ record['applicable_legislation'] }}"
+                {% else %}
+                    {% for legislation in record['applicable_legislation'] %}
+                    "{{ legislation }}"{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                {% endif %}
+            ],
+        {% endif %}
         {% if record['license_title'] and record['license_url'] %}
         "uselimitation": {
                         "label": "{{record['license_title'] }}",
@@ -338,17 +376,41 @@
         "url": "{{ url }}",
         "status": "UnderDevelopment",
         {#TODO: https://inspire.ec.europa.eu/metadata-codelist/MaintenanceFrequency #}
-        "maintenancefrequency": "continual"
+        "maintenancefrequency": "continual",
+        {# Purpose - Task #6 #}
+        {% if record['purpose'] %}
+            {% set purpose_value = record['purpose']|get_localized_dataset_value(language_2code, languages, true) %}
+            "purpose": "{{ purpose_value }}",
+        {% endif %}
+        {# Credit - Task #7 #}
+        {% if record.get('credit') %}
+            "credit": "{{ record['credit'] }}",
+        {% endif %}
+        {# Resource Specific Usage - Task #8 #}
+        {% if record.get('resource_specific_usage') %}
+            "resourcespecificusage": "{{ record['resource_specific_usage'] }}",
+        {% endif %}
+        {# Other Constraints - Task #9 #}
+        {% if record.get('resource_other_constraints') %}
+            "resourceotherconstraints": "{{ record['resource_other_constraints'] }}",
+        {% endif %}
+        {# Level Description - Task #11 (conditional based on hierarchylevel) #}
+        {% if dcat_type == 'dataset' %}
+            "leveldescription": "dataset"
+        {% endif %}
     },
     "contact": {
         {# Initialize a list for storing contact fields #}
         {%- set contact_fields = [] %}
     
-        {# Publisher #}
+        {# Publisher (dct:publisher) - Task #3 and #5 #}
         {% if record['publisher_name'] or record['publisher_email'] or record['publisher_url'] %}
             {%- set publisher = {} %}
             {% if record['publisher_name'] %}
                 {%- set _ = publisher.update({'organization': record['publisher_name']}) %}
+            {% endif %}
+            {% if record['publisher_identifier'] %}
+                {%- set _ = publisher.update({'identifier': record['publisher_identifier']}) %}
             {% endif %}
             {% if record['publisher_email'] %}
                 {%- set _ = publisher.update({'email': record['publisher_email']}) %}
@@ -356,14 +418,19 @@
             {% if record['publisher_url'] %}
                 {%- set _ = publisher.update({'url': record['publisher_url']}) %}
             {% endif %}
+            {# Add role publisher #}
+            {%- set _ = publisher.update({'role': 'publisher'}) %}
             {%- set _ = contact_fields.append(('publisher', publisher)) %}
         {% endif %}
     
-        {# Author #}
+        {# Author (dct:creator) #}
         {% if record['author_name'] or record['author_email'] or record['author_url'] %}
             {%- set author = {} %}
             {% if record['author_name'] %}
                 {%- set _ = author.update({'individualname': record['author_name']}) %}
+            {% endif %}
+            {% if record['author_uri'] %}
+                {%- set _ = author.update({'identifier': record['author_uri']}) %}
             {% endif %}
             {% if record['author_email'] %}
                 {%- set _ = author.update({'email': record['author_email']}) %}
@@ -371,16 +438,78 @@
             {% if record['author_url'] %}
                 {%- set _ = author.update({'url': record['author_url']}) %}
             {% endif %}
+            {%- set _ = author.update({'role': 'author'}) %}
             {%- set _ = contact_fields.append(('author', author)) %}
         {% endif %}
     
-        {# Point of Contact (if always to be included) #}
-        {%- set pointOfContact = {
-            "organization": record['contact_name'],
-            "email": record['contact_email'],
-            "url": record['contact_url']
-        } %}
+        {# Point of Contact - Expanded ISO19139 contact elements (Task #1) #}
+        {%- set pointOfContact = {} %}
+        {% if record['contact_name'] %}
+            {%- set _ = pointOfContact.update({'organization': record['contact_name']}) %}
+        {% endif %}
+        {% if record['contact_uri'] %}
+            {%- set _ = pointOfContact.update({'identifier': record['contact_uri']}) %}
+        {% endif %}
+        {% if record['contact_email'] %}
+            {%- set _ = pointOfContact.update({'email': record['contact_email']}) %}
+        {% endif %}
+        {% if record['contact_url'] %}
+            {%- set _ = pointOfContact.update({'url': record['contact_url']}) %}
+        {% endif %}
+        {# Extended ISO19139 address fields - Task #1 #}
+        {% if record.get('contact_address') %}
+            {%- set _ = pointOfContact.update({'address': {'deliverypoint': record['contact_address']}}) %}
+        {% endif %}
+        {% if record.get('contact_city') %}
+            {% if 'address' in pointOfContact %}
+                {%- set _ = pointOfContact['address'].update({'city': record['contact_city']}) %}
+            {% else %}
+                {%- set _ = pointOfContact.update({'address': {'city': record['contact_city']}}) %}
+            {% endif %}
+        {% endif %}
+        {% if record.get('contact_postalcode') or record.get('contact_postal_code') %}
+            {% set postal_code = record.get('contact_postalcode') or record.get('contact_postal_code') %}
+            {% if 'address' in pointOfContact %}
+                {%- set _ = pointOfContact['address'].update({'postalcode': postal_code}) %}
+            {% else %}
+                {%- set _ = pointOfContact.update({'address': {'postalcode': postal_code}}) %}
+            {% endif %}
+        {% endif %}
+        {% if record.get('contact_country') %}
+            {% if 'address' in pointOfContact %}
+                {%- set _ = pointOfContact['address'].update({'country': record['contact_country']}) %}
+            {% else %}
+                {%- set _ = pointOfContact.update({'address': {'country': record['contact_country']}}) %}
+            {% endif %}
+        {% endif %}
+        {% if record.get('contact_phone') %}
+            {%- set _ = pointOfContact.update({'phone': record['contact_phone']}) %}
+        {% endif %}
+        {% if record.get('contact_position') %}
+            {%- set _ = pointOfContact.update({'position': record['contact_position']}) %}
+        {% endif %}
+        {%- set _ = pointOfContact.update({'role': 'pointOfContact'}) %}
         {%- set _ = contact_fields.append(('pointOfContact', pointOfContact)) %}
+    
+        {# Maintainer/Distributor - Task #10 #}
+        {% if record['maintainer_name'] or record['maintainer_email'] or record['maintainer_url'] %}
+            {%- set distributor = {} %}
+            {% if record['maintainer_name'] %}
+                {%- set _ = distributor.update({'organization': record['maintainer_name']}) %}
+            {% endif %}
+            {% if record['maintainer_uri'] %}
+                {%- set _ = distributor.update({'identifier': record['maintainer_uri']}) %}
+            {% endif %}
+            {% if record['maintainer_email'] %}
+                {%- set _ = distributor.update({'email': record['maintainer_email']}) %}
+            {% endif %}
+            {% if record['maintainer_url'] %}
+                {%- set _ = distributor.update({'url': record['maintainer_url']}) %}
+            {% endif %}
+            {# Assign distributor role - Task #10 #}
+            {%- set _ = distributor.update({'role': 'distributor'}) %}
+            {%- set _ = contact_fields.append(('distributor', distributor)) %}
+        {% endif %}
     
         {# Render all contact fields with appropriate commas #}
         {%- for field in contact_fields %}
@@ -388,9 +517,17 @@
         {%- endfor %}
     },
     "distribution": {
+            {% set service_type_detected = false %}
             {% for resource in record['resources'] %}
             {% if resource.format is not none and resource.format != "" %}
                 {% set distribution_type = resource.format.rsplit('/', 1)[-1]|get_mapping_values_dict_from_yaml_list(input_field='format', output_field='identifier', codelist='distribution_type', mappings_folder=mappings_folder + '/inspire') %}
+                {# Detect service type from first resource format if this is a service #}
+                {% if dcat_type == 'service' and not service_type_detected %}
+                    {% set spatial_service = resource.format.upper()|get_mapping_values_dict_from_yaml_list(input_field='format', output_field='uri', codelist='spatial_data_service', mappings_folder=mappings_folder + '/inspire') %}
+                    {% if spatial_service is mapping %}
+                        {% set service_type_detected = spatial_service %}
+                    {% endif %}
+                {% endif %}
                     "{{ resource.format.lower() }}": {
                         "name": "{{ resource['name'] }}",
                         {% if resource_type == "service" and 'wms' in resource['format'] or 'wfs' in resource['format'] or 'wmts' in resource['format'] or 'wcs' in resource['format'] or 'ogc' in resource['format'] %}

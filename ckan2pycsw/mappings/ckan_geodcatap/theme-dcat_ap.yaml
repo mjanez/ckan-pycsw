@@ -101,7 +101,7 @@
 -
    theme: http://inspire.ec.europa.eu/theme/lc
    dcat_ap: http://publications.europa.eu/resource/authority/data-theme/ENVI
-   label: Land Cover
+   label: Land cover
    language: en
 -
    theme: http://inspire.ec.europa.eu/theme/lu

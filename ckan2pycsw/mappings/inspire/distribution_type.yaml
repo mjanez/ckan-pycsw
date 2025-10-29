@@ -361,9 +361,9 @@
 -
    format: JSON
    identifier: json
-   uri: 
-   label: The JavaScript Object Notation (JSON) Data Interchange Forma
-   url: https://datatracker.ietf.org/doc/html/rfc7159
+   uri: http://tools.ietf.org/html/rfc7159
+   label: JavaScript Object Notation
+   url: http://tools.ietf.org/html/rfc7159
 -
    format: TILEJSON
    identifier: tilejson:2.0.0

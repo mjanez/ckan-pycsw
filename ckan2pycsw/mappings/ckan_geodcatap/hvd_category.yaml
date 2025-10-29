@@ -1,0 +1,443 @@
+# High-Value Dataset Categories
+# Source: https://op.europa.eu/en/web/eu-vocabularies/concept-scheme/-/resource?uri=http://data.europa.eu/bna/asd487ae75
+# Date: 2023-09-27
+# Based on Commission Implementing Regulation (EU) 2023/138
+# Includes NT0 (main categories) and NT1 (subcategories)
+
+# Meteorological (NT0)
+-
+   uri: http://data.europa.eu/bna/c_164e0bf5
+   code: c_164e0bf5
+   label: Meteorological
+   language: en
+   narrower_level: NT0
+-
+   uri: http://data.europa.eu/bna/c_13e3cf16
+   code: c_13e3cf16
+   label: NWP model data
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_36807466
+   code: c_36807466
+   label: "Climate data: validated observations"
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_3af3368c
+   code: c_3af3368c
+   label: Observations data measured by weather stations
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_be47b010
+   code: c_be47b010
+   label: Weather alerts
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_d13a4420
+   code: c_d13a4420
+   label: Radar data
+   language: en
+   narrower_level: NT1
+
+# Companies and company ownership (NT0)
+-
+   uri: http://data.europa.eu/bna/c_a9135398
+   code: c_a9135398
+   label: Companies and company ownership
+   language: en
+   narrower_level: NT0
+-
+   uri: http://data.europa.eu/bna/c_56a1bf47
+   code: c_56a1bf47
+   label: "Basic company information: key attributes"
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_8f0fac04
+   code: c_8f0fac04
+   label: Company documents and accounts
+   language: en
+   narrower_level: NT1
+
+# Geospatial (NT0)
+-
+   uri: http://data.europa.eu/bna/c_ac64a52d
+   code: c_ac64a52d
+   label: Geospatial
+   language: en
+   narrower_level: NT0
+-
+   uri: http://data.europa.eu/bna/c_60182062
+   code: c_60182062
+   label: Buildings
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_642643e6
+   code: c_642643e6
+   label: Agricultural parcels
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_6a3f6896
+   code: c_6a3f6896
+   label: Cadastral parcels
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_6c2bb82d
+   code: c_6c2bb82d
+   label: Geographical names
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_9427236f
+   code: c_9427236f
+   label: Administrative units
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_c3de25e4
+   code: c_c3de25e4
+   label: Addresses
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_fbd2fc3f
+   code: c_fbd2fc3f
+   label: Reference parcels
+   language: en
+   narrower_level: NT1
+
+# Mobility (NT0)
+-
+   uri: http://data.europa.eu/bna/c_b79e35eb
+   code: c_b79e35eb
+   label: Mobility
+   language: en
+   narrower_level: NT0
+-
+   uri: http://data.europa.eu/bna/c_4b74ea13
+   code: c_4b74ea13
+   label: Transport networks
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_b151a0ba
+   code: c_b151a0ba
+   label: Inland waterways datasets
+   language: en
+   narrower_level: NT1
+
+# Earth observation and environment (NT0)
+-
+   uri: http://data.europa.eu/bna/c_dd313021
+   code: c_dd313021
+   label: Earth observation and environment
+   language: en
+   narrower_level: NT0
+-
+   uri: http://data.europa.eu/bna/c_06b1eec4
+   code: c_06b1eec4
+   label: Hydrography
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_315692ad
+   code: c_315692ad
+   label: Elevation
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_38933a65
+   code: c_38933a65
+   label: Waste
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_43f88346
+   code: c_43f88346
+   label: Water
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_4ba9548e
+   code: c_4ba9548e
+   label: Emissions
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_4d63300b
+   code: c_4d63300b
+   label: Horizontal legislation
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_4dd389c5
+   code: c_4dd389c5
+   label: Mineral resources
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_59c93ba5
+   code: c_59c93ba5
+   label: Production and industrial facilities
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_59e64dd4
+   code: c_59e64dd4
+   label: Climate
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_63b37dd4
+   code: c_63b37dd4
+   label: Air
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_63be22bd
+   code: c_63be22bd
+   label: Natural risk zones
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_793164b6
+   code: c_793164b6
+   label: Species distribution
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_7b8fbb64
+   code: c_7b8fbb64
+   label: Environmental monitoring facilities
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_83aa10a6
+   code: c_83aa10a6
+   label: Protected sites
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_87a129d9
+   code: c_87a129d9
+   label: Soil
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_91185a85
+   code: c_91185a85
+   label: Orthoimagery
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_ad9ae929
+   code: c_ad9ae929
+   label: Land use
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_af646f5b
+   code: c_af646f5b
+   label: Area management / restriction / regulation zones & reporting units
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_b21e1296
+   code: c_b21e1296
+   label: Land cover
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_b40e6d46
+   code: c_b40e6d46
+   label: Oceanographic geographical features
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_b7de66cd
+   code: c_b7de66cd
+   label: Energy resources
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_b7f6a4f3
+   code: c_b7f6a4f3
+   label: Nature preservation and biodiversity
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_c3919aec
+   code: c_c3919aec
+   label: Habitats and biotopes
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_c873f344
+   code: c_c873f344
+   label: Bio-geographical regions
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_e3f55603
+   code: c_e3f55603
+   label: Geology
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_e4358335
+   code: c_e4358335
+   label: Noise
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_f399050e
+   code: c_f399050e
+   label: Sea regions
+   language: en
+   narrower_level: NT1
+
+# Statistics (NT0)
+-
+   uri: http://data.europa.eu/bna/c_e1da4e07
+   code: c_e1da4e07
+   label: Statistics
+   language: en
+   narrower_level: NT0
+-
+   uri: http://data.europa.eu/bna/c_04bf94a3
+   code: c_04bf94a3
+   label: Poverty
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_20cd11bb
+   code: c_20cd11bb
+   label: "EU International trade in goods statistics – exports and imports breakdowns simultaneously by partner, product and flow"
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_23385471
+   code: c_23385471
+   label: Potential labour force
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_2aed31f9
+   code: c_2aed31f9
+   label: Industrial producer price index breakdowns by activity
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_317b9493
+   code: c_317b9493
+   label: Population, Fertility, Mortality
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_34abf8c1
+   code: c_34abf8c1
+   label: Industrial production
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_424bb0b4
+   code: c_424bb0b4
+   label: Current healthcare expenditure
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_4ac557e7
+   code: c_4ac557e7
+   label: Government expenditure and revenue
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_4acb6bf3
+   code: c_4acb6bf3
+   label: Mortality
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_59627af3
+   code: c_59627af3
+   label: "National accounts – key indicators on households"
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_6a7250c
+   code: c_6a7250c
+   label: Fertility
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_92874eb2
+   code: c_92874eb2
+   label: Environmental accounts and statistics
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_95da87c7
+   code: c_95da87c7
+   label: "National accounts – key indicators on corporations"
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_a2c6dcd8
+   code: c_a2c6dcd8
+   label: Employment
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_a3767648
+   code: c_a3767648
+   label: Tourism flows in Europe
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_a49ec591
+   code: c_a49ec591
+   label: Volume of sales by activity
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_a8b937c4
+   code: c_a8b937c4
+   label: Inequality
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_b72b721f
+   code: c_b72b721f
+   label: National accounts – GDP main aggregates
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_c0022235
+   code: c_c0022235
+   label: Harmonised Indices of consumer prices
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_dd8f4797
+   code: c_dd8f4797
+   label: Consolidated government gross debt
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_f2b50efd
+   code: c_f2b50efd
+   label: Population
+   language: en
+   narrower_level: NT1
+-
+   uri: http://data.europa.eu/bna/c_fd4e881c
+   code: c_fd4e881c
+   label: Unemployment
+   language: en
+   narrower_level: NT1
