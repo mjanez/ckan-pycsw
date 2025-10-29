@@ -1,4 +1,6 @@
-version: '3'
+volumes:
+  ckan_pycsw_logs:
+  ckan_pycsw_metadata:
 
 services:
   ckan2pycsw_test:
@@ -17,8 +19,8 @@ services:
       - ${PYCSW_HOST_PORT}:${PYCSW_PORT}
       - ${SSH_HOST_PORT}:${SSH_PORT}
     volumes:
-        - ./log:${APP_DIR}/ckan-pycsw/log
-        - ./metadata:${APP_DIR}/ckan-pycsw/metadata
+        - ckan_pycsw_logs:${APP_DIR}/log
+        - ckan_pycsw_metadata:${APP_DIR}/metadata
 networks:
   default:
     name: ckan2pycsw-test

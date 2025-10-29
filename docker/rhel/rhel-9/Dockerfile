@@ -9,7 +9,7 @@ ENV CKAN_USER=ckan
 ENV CKAN_GROUP=ckan
 ENV CKAN_USER_SSH_PWD=ckan
 ENV SSH_PORT=22
-ENV APP_DIR=/app
+ENV APP_DIR=/srv/app
 
 # Install necessary packages and install Ansible
 RUN dnf update -y && \
