@@ -1,27 +1,19 @@
-# Changelog
+# ckan-pycsw
 
-All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+GitHub Releases [Changelog](https://github.com/mjanez/ckan-pycsw/releases)
 
 <!-- insertion marker -->
-## Unreleased
+## v2.6.1 - 2025-10-30
 
 <small>[Compare with latest](https://github.com/mjanez/ckan-pycsw/compare/v2.6.1...HEAD)</small>
 
-### Fixed
-
-- Fix JSON deserialization error in render_j2_template function ([8f3af39](https://github.com/mjanez/ckan-pycsw/commit/8f3af397bd06c7af685c5a81ef2f093da2916c86) by mjanez).
-- Fix notes ([314a86c](https://github.com/mjanez/ckan-pycsw/commit/314a86ccdaf4d7238c3e012dff237d1c1eb667ab) by mjanez).
-
-<!-- insertion marker -->
-## [v2.6.1](https://github.com/mjanez/ckan-pycsw/releases/tag/v2.6.1) - 2024-04-19
-
-<small>[Compare with first commit](https://github.com/mjanez/ckan-pycsw/compare/f6e2c7c94d0663834f1433df73a1c43cd489405e...v2.6.1)</small>
-
 ### Added
 
+- Add JSON ([cd54d40](https://github.com/mjanez/ckan-pycsw/commit/cd54d40844a9c92fedd9e7bf17ce6b94b42746c4) by mjanez).
+- Add retry mechanism for HTTP requests and update dependencies ([60df19d](https://github.com/mjanez/ckan-pycsw/commit/60df19d0b84b1d8bcc5b0f3c89fb4ac01fb95aff) by mjanez).
+- Add PYCSW catalog configuration to Dockerfile.dev ([f9a2cb8](https://github.com/mjanez/ckan-pycsw/commit/f9a2cb897c9b27d5c7a828cd30bad544ccea28de) by mjanez).
+- Add Changelog file ([c922f0f](https://github.com/mjanez/ckan-pycsw/commit/c922f0f8d1d005e421c00a27c042f9d4a2b63496) by mjanez).
 - Add dockers to testing ([fdd68b9](https://github.com/mjanez/ckan-pycsw/commit/fdd68b967dd1d4db96e58099e243d257760781a2) by mjanez).
 - Add multilang first version ([8abd23c](https://github.com/mjanez/ckan-pycsw/commit/8abd23c5b825a477ff39dfa3a3dc358e5302f236) by mjanez).
 - Add matrix to docker action ([9b5b4ee](https://github.com/mjanez/ckan-pycsw/commit/9b5b4ee501002307d76565169cee4358c132f7e9) by mjanez).
@@ -45,6 +37,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
+- Fix docker.yaml ([62ee2ac](https://github.com/mjanez/ckan-pycsw/commit/62ee2accfb141dfb9fd3d84ac795742309b1b9f3) by mjanez).
+- Fix CKAN_SYSADMIN_EMAIL ([636ce52](https://github.com/mjanez/ckan-pycsw/commit/636ce52bf9581d699a9fef43c964e04c7c7bebad) by mjanez).
+- Fix publisher contact variable and enrich ISO19139 INSPIRE template with author/distributor, purpose/credit, HVD keywords/categories, and resource constraints ([f24392d](https://github.com/mjanez/ckan-pycsw/commit/f24392d03377271deae7c806c642a527e1137b7a) by mjanez).
+- Fix APP_DIR default, correct PYCSW_OUTPUT_SCHEMA typo, and re-enable ptvsd dev attach ([f527492](https://github.com/mjanez/ckan-pycsw/commit/f527492df8f361421e2c4373899cb7171046b556) by mjanez).
+- Fix env vars and Docker setup ([c4dc65b](https://github.com/mjanez/ckan-pycsw/commit/c4dc65ba08eeac3c6f0255a75666e93379757897) by mjanez).
+- Fix JSON deserialization error in render_j2_template function ([8f3af39](https://github.com/mjanez/ckan-pycsw/commit/8f3af397bd06c7af685c5a81ef2f093da2916c86) by mjanez).
+- Fix notes ([314a86c](https://github.com/mjanez/ckan-pycsw/commit/314a86ccdaf4d7238c3e012dff237d1c1eb667ab) by mjanez).
 - Fix bugs when DEV_MODE is None ([5b4075e](https://github.com/mjanez/ckan-pycsw/commit/5b4075e64ed89e662bcdc939e678a79409d384d9) by mjanez).
 - Fix ckan dataset retrieving ([2a5ca63](https://github.com/mjanez/ckan-pycsw/commit/2a5ca63e8bc17bb1e82c5d5998ab4b692fabef9b) by mjanez).
 - Fix ghcr Dockerfile ([2da1c0f](https://github.com/mjanez/ckan-pycsw/commit/2da1c0f4aa3ae995261ac75e93b4738c7e5a2ac1) by mjanez).
@@ -96,3 +95,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Remove gmd:spatialRepresentationInfo ([7694f94](https://github.com/mjanez/ckan-pycsw/commit/7694f940837cb99aeb4267d9f11d3bf44aaa770c) by mjanez).
 - Remove unused code ([97bd24e](https://github.com/mjanez/ckan-pycsw/commit/97bd24e0332e3fd55e338951ca9a345f643b29c5) by mjanez).
 
+<!-- insertion marker -->

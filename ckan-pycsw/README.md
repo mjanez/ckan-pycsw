@@ -2,14 +2,9 @@
 
 This is a [base container for pycsw](https://github.com/mjanez/ckan-pycsw), an OGC CSW server implementation written in Python. For more information about pycsw got to [pycsw.org](https://pycsw.org). For the source code of pycsw got to [gepython/pycsw](https://github.com/geopython/pycsw) on GitHub.
 
-**Highlights**
-
-* Supports both sqlite and postgresql database.
-* Using the gunicorn server.
-
 ## Tags
 
-* `2.6.1-alpine`, `alpine`, `latest`
+* `*.*.*`, `latest`
 
 ## Exposes
 
@@ -17,4 +12,8 @@ This is a [base container for pycsw](https://github.com/mjanez/ckan-pycsw), an O
 
 ## Environment
 
-* `PYCSW_CONFIG` --- path to `pycsw.cfg` config file, default `/etc/pycsw/pycsw.cfg`
+Copy the `.env.example` template and configure by changing the `.env` file. Change `PYCSW_URL` and `CKAN_URL`,  as well as the published port `PYCSW_PORT`, if needed.
+
+```shell
+cp .env.example .env
+```
