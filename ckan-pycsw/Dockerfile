@@ -1,5 +1,8 @@
 FROM python:3.11.5-slim-bullseye
 LABEL maintainer="96422458+mjanez@users.noreply.github.com"
+LABEL org.opencontainers.image.source=https://github.com/mjanez/ckan-pycsw
+LABEL org.opencontainers.image.description="ckan-pycsw base container image"
+LABEL org.opencontainers.image.licenses=Unlicense
 
 # Production non-root user
 ENV USERNAME=ckan-pycsw
