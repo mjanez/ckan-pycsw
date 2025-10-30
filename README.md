@@ -33,7 +33,8 @@ List of *containers*:
 | Repository | pycsw version | Type | Docker tag | Size | Notes |
 | --- | --- | --- | --- | --- | --- |
 | ckan-pycsw | 2.6.1 | base image | `mjanez/ckan-pycsw:latest` | ~346 MB | Development & test latest version |
-| ckan-pycsw | 2.6.1 | base image | **`mjanez/ckan-pycsw:2.6.1`** | ~330 MB | Last stable release |
+| ckan-pycsw | 2.6.2 | base image | `mjanez/ckan-pycsw:2.6.2` | ~330 MB | Last stable release according to [pycsw 2.6.2](https://github.com/geopython/pycsw/tree/2.6.2) |
+| ckan-pycsw | 2.6.1 | base image | `mjanez/ckan-pycsw:2.6.1` | ~330 MB | Stable release according to [pycsw 2.6.1](https://github.com/geopython/pycsw/tree/2.6.1) |
 | ckan-pycsw | 2.6.1 | base image | `mjanez/ckan-pycsw:main` | ~422 MB | Legacy version (v2.6.1 anchor). Deprecated in favor of tagged versions. |
 
 #### Base images
