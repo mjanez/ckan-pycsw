@@ -1,5 +1,8 @@
 FROM python:3.11.5-slim-bullseye
-LABEL maintainer="mnl.janez@gmail.com"
+LABEL maintainer="96422458+mjanez@users.noreply.github.com"
+LABEL org.opencontainers.image.source=https://github.com/mjanez/ckan-pycsw
+LABEL org.opencontainers.image.description="ckan-pycsw base container image"
+LABEL org.opencontainers.image.licenses=Unlicense
 
 # Production non-root user
 ENV USERNAME=ckan-pycsw
@@ -32,8 +35,9 @@ ENV CSW_IDENTIFICATION_TITLE="Sample Geospatial Catalogue" \
     CSW_PROVIDER_NAME="ckan-docker development team" \
     CSW_PROVIDER_URL="https://github.com/mjanez/ckan-docker" \
     CSW_CONTACT_NAME="ckan-docker development team" \
+    CKAN_SYSADMIN_EMAIL="ckan.docker@example.org" \
     CSW_CONTACT_POSITION="Site Administrator" \
-    CSW_CONTACT_ADDRESS="ckan-docker development team" \
+    CSW_CONTACT_ADDRESS==${CSW_CONTACT_NAME} \
     CSW_CONTACT_CITY="Madrid" \
     CSW_CONTACT_STATE_OR_PROVINCE="Madrid" \
     CSW_CONTACT_POSTAL_CODE="28001" \
@@ -65,12 +69,12 @@ RUN groupadd --gid $USER_GID $USERNAME \
     # Remove wait-for
     # wget --progress=dot:mega -O /wait-for https://raw.githubusercontent.com/eficode/wait-for/v2.2.4/wait-for \
     # && chmod +x /wait-for \
-    && python3 -m pip install --no-cache-dir pdm==2.9.2 \
+    && python3 -m pip install --no-cache-dir pdm==2.15.3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies with pdm
 COPY pyproject.toml pdm.lock ./
-RUN pdm install --no-self --group prod
+RUN pdm install --no-self
 
 # Update files
 # pycsw 3.0: Include both old .conf (for migration) and new .yml templates

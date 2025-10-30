@@ -5,11 +5,11 @@
 
 <p align="center">
     <a href="#overview">Overview</a> •
+    <a href="#containers">Containers</a> •
     <a href="#quick-start">Quick start</a> •
     <a href="#schema-development">Schema development</a> •
     <a href="#test">Test</a> •
-    <a href="#debug">Debug</a> •
-    <a href="#containers">Containers</a>
+    <a href="#debug">Debug</a>
 </p>
 
 **Requirements**:
@@ -24,6 +24,32 @@ Docker compose environment (based on [pycsw](https://github.com/geopython/pycsw)
 Available components:
 * **pycsw**: The pycsw app. An [OARec](https://ogcapi.ogc.org/records) and [OGC CSW](https://opengeospatial.org/standards/cat) server implementation written in Python.
 * **ckan2pycsw**: Software to achieve interoperability with the open data portals based on CKAN. To do this, `ckan2pycsw` reads data from an instance using the CKAN API, generates INSPIRE ISO-19115/ISO-19139 [^3] metadata using [pygeometa](https://geopython.github.io/pygeometa/), or another custom schema, and populates a [pycsw](https://pycsw.org/) instance that exposes the metadata using CSW and OAI-PMH.
+
+## Containers
+List of *containers*:
+* [ckan-pycsw](ckan-pycsw/README.md)
+
+#### Built images
+| Repository | pycsw version | Type | Docker tag | Size | Notes |
+| --- | --- | --- | --- | --- | --- |
+| ckan-pycsw | 2.6.1 | base image | `mjanez/ckan-pycsw:latest` | ~346 MB | Development & test latest version |
+| ckan-pycsw | 2.6.2 | base image | `mjanez/ckan-pycsw:2.6.2` | ~330 MB | Last stable release according to [pycsw 2.6.2](https://github.com/geopython/pycsw/tree/2.6.2) |
+| ckan-pycsw | 2.6.1 | base image | `mjanez/ckan-pycsw:2.6.1` | ~330 MB | Stable release according to [pycsw 2.6.1](https://github.com/geopython/pycsw/tree/2.6.1) |
+| ckan-pycsw | 2.6.1 | base image | `mjanez/ckan-pycsw:main` | ~422 MB | Legacy version (v2.6.1 anchor). Deprecated in favor of tagged versions. |
+
+#### Base images
+| Repository | Type | Docker tag | Size | Notes |
+| --- | --- | --- | --- | --- |
+| Python | base image | `python:3.11-slim-bullseye` | ~45 MB | Slim variant for reduced footprint |
+
+> [!NOTE]
+> GHCR and Dev `Dockerfiles` using latest stable tag images as base.
+
+### Network ports settings
+| Ports | Container |
+| --- | --- |
+| 0.0.0.0:8000->8000/tcp | pycsw |
+| 0.0.0.0:5678->5678/tcp | ckan-pycsw debug (debugpy) |
 
 ## Quick start
 ### With docker compose
@@ -277,32 +303,6 @@ Perform a `GetRecords` request and return all:
 
 > [!NOTE]
 > By default, the Python extension looks for and loads a file named `.env` in the current workspace folder. More info about Python debugger and [Enviromental variables use](https://code.visualstudio.com/docs/python/environments#_environment-variables).
-
-## Containers
-List of *containers*:
-
-* [PyCSW](pycsw/README.md)
-
-
-### Base images
-| Repository | Type | Docker tag | Size | Notes |
-| --- | --- | --- | --- | --- |
-| python 3.11| base image | `python/python:3.11-slim-bullseye` | 45.57 MB |  - |
-
-### Built images
-| Repository | Type | Docker tag | Size | Notes |
-| --- | --- | --- | --- | --- |
-| mjanez/ckan-pycsw| custom image | `mjanez/ckan-pycsw:latest` | 175 MB |  Dev & Test latest version. |
-| mjanez/ckan-pycsw| custom image | `mjanez/ckan-pycsw:main` | 175 MB |  Stable version. |
-
-> [!NOTE]
-> GHCR and Dev `Dockerfiles` using `main` images as base.
-
-### Network ports settings
-| Ports | Container |
-| --- | --- |
-| 0.0.0.0:8000->8000/tcp | pycsw |
-| 0.0.0.0:5678->5678/tcp | ckan-pycsw debug (debugpy) |
 
 
 [^1]: Extends the @frafra [coat2pycsw](https://github.com/COATnor/coat2pycsw) package.
