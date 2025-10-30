@@ -9,6 +9,9 @@ dependencies = [
     "pygeometa>=0.13.1",
     # pycsw 3.0 installed from GitHub (not yet available on PyPI)
     "pycsw @ git+https://github.com/geopython/pycsw.git@master",
+    # OWSLib 0.29+ required for pycsw 3.0 (md.identification as list)
+    # See: https://github.com/geopython/pycsw/issues/1076
+    "owslib>=0.29.0",
     # pycsw 3.0 standalone requirements (Flask-based multi-API server)
     "flask>=3.1.2",
     "pygeofilter>=0.2.0",
