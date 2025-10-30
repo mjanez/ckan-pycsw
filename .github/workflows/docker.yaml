@@ -1,24 +1,10 @@
+
 name: Build and push ckan-pycsw image
 
 on:
-  pull_request:
-    types:
-        - closed
-    branches:
-        - main
-        - 'ckan-pycsw-*.*.*'
-        - '!dev/ckan-pycsw-*.*.*'
-        - '!feature/*'
-        - '!fix/*'
   release:
     types:
       - published
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Image tag (leave empty for branch name)'
-        required: false
-        default: ''
 
 env:
   REGISTRY: ghcr.io
@@ -31,11 +17,8 @@ jobs:
   docker:
     name: Build and push Docker image
     runs-on: ubuntu-latest
-    # Run on PR merge, release, or manual trigger
-    if: |
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
-      github.event_name == 'release' ||
-      github.event_name == 'workflow_dispatch'
+    # Run only on release published
+    if: github.event_name == 'release'
 
     steps:
       - name: Set up QEMU
@@ -50,27 +33,11 @@ jobs:
       - name: Extract version from tag
         id: version
         run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            # Extract version from release tag
-            # Supports: v2.6.1, ckan-pycsw-2.6.1, 2.6.1
-            VERSION=$(echo "${{ github.event.release.tag_name }}" | sed -E 's/^(v|ckan-pycsw-)?([0-9]+\.[0-9]+\.[0-9]+.*)$/\2/')
-            echo "version=${VERSION}" >> $GITHUB_OUTPUT
-            echo "is_release=true" >> $GITHUB_OUTPUT
-            echo "Extracted version: ${VERSION}"
-          elif [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag }}" ]; then
-            # Manual workflow with custom tag
-            VERSION="${{ github.event.inputs.tag }}"
-            echo "version=${VERSION}" >> $GITHUB_OUTPUT
-            echo "is_release=false" >> $GITHUB_OUTPUT
-            echo "Manual tag: ${VERSION}"
-          else
-            # PR merge - use branch name
-            BRANCH="${{ github.head_ref }}"
-            VERSION="${BRANCH////_}"
-            echo "version=${VERSION}" >> $GITHUB_OUTPUT
-            echo "is_release=false" >> $GITHUB_OUTPUT
-            echo "Branch version: ${VERSION}"
-          fi
+          # Extract version from release tag
+          # Supports: v2.6.1, ckan-pycsw-2.6.1, 2.6.1
+          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed -E 's/^(v|ckan-pycsw-)?([0-9]+\.[0-9]+\.[0-9]+.*)$/\2/')
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Extracted version: ${VERSION}"
 
       - name: Login to registry
         uses: docker/login-action@v3
@@ -91,27 +58,10 @@ jobs:
       - name: Generate Docker tags
         id: tags
         run: |
-          TAGS=""
           VERSION="${{ steps.version.outputs.version }}"
           IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-          
-          if [ "${{ steps.version.outputs.is_release }}" = "true" ]; then
-            # Release: create version tag and update latest
-            TAGS="${IMAGE}:${VERSION},${IMAGE}:latest"
-            echo "Release tags: ${TAGS}"
-          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            # Manual: only the specified tag
-            TAGS="${IMAGE}:${VERSION}"
-            echo "Manual tag: ${TAGS}"
-          else
-            # PR merge: branch name tag and main/latest if merging to main
-            TAGS="${IMAGE}:${VERSION}"
-            if [ "${{ github.event.pull_request.base.ref }}" = "main" ]; then
-              TAGS="${TAGS},${IMAGE}:main,${IMAGE}:latest"
-            fi
-            echo "PR merge tags: ${TAGS}"
-          fi
-          
+          TAGS="${IMAGE}:${VERSION}"
+          echo "Release tag: ${TAGS}"
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
 
       - name: Build and push
