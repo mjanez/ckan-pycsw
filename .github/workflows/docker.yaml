@@ -91,9 +91,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           context: ${{ env.CONTEXT }}
           file: ${{ env.CONTEXT }}${{ env.DOCKERFILE_PATH }}/${{ env.DOCKERFILE }}
-          platforms: linux/amd64,linux/arm64
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
 
       - name: Linting Dockerfile with hadolint in GH Actions
         uses: hadolint/hadolint-action@v3.1.0
