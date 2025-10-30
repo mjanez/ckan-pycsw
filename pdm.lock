@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["cross_platform"]
 lock_version = "4.4.1"
-content_hash = "sha256:6d6182aa2115c7a8448b6f3f68897017965f8f065008ce7089a6df0c8ccff98e"
+content_hash = "sha256:a7adcbd291257fd60833353840b65c002c48bbb9597db4ba111b7197bd75b27e"
 
 [[package]]
 name = "apscheduler"
@@ -528,10 +528,10 @@ files = [
 
 [[package]]
 name = "pycsw"
-version = "2.6.1"
+version = "2.6.2"
 summary = "pycsw is an OGC CSW server implementation written in Python"
 dependencies = [
-    "OWSLib",
+    "OWSLib<0.29",
     "Shapely",
     "geolinks",
     "lxml",
@@ -539,8 +539,8 @@ dependencies = [
     "xmltodict",
 ]
 files = [
-    {file = "pycsw-2.6.1-py2.py3-none-any.whl", hash = "sha256:759029e5f6785c55d760495d43c3787153da1c9348da290ae368846b60c83484"},
-    {file = "pycsw-2.6.1.tar.gz", hash = "sha256:8d4763bfc0674018f0c825b2c533352c1edef161fd76e154c5b7a3dcc44434f0"},
+    {file = "pycsw-2.6.2-py2.py3-none-any.whl", hash = "sha256:60920c1fe43fdcd7e8dcbbe89a5fc106e54b81af6d7c96f9efe9dd5bcd943f88"},
+    {file = "pycsw-2.6.2.tar.gz", hash = "sha256:9a4c768ddca2a5a24fb5eed664e4553a0ce7fb38729e60bbd48fe8247e7c09b7"},
 ]
 
 [[package]]
