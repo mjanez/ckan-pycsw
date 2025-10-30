@@ -1,7 +1,7 @@
 # inbuilt libraries
 import logging
 import pathlib
-from configparser import ConfigParser
+import yaml
 from urllib.parse import urljoin
 import os
 from datetime import datetime, time
@@ -15,6 +15,7 @@ import psutil
 import requests
 import pycsw.core.config
 from pycsw.core import admin, metadata, repository, util
+from pycsw.core.repository import setup
 from pygeometa.core import read_mcf
 from pygeometa.schemas.iso19139 import ISO19139OutputSchema
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -43,14 +44,16 @@ method = "nightly"
 CKAN_PYCSW_VERSION = os.environ.get("CKAN_PYCSW_VERSION", "1.0.0")
 URL = os.environ.get("CKAN_URL", 'http://localhost:5000/')
 PYCSW_PORT = os.environ.get("PYCSW_PORT", 8000)
-PYCSW_URL = os.environ.get("PYCSW_URL", f'http://localhost:{PYCSW_PORT}/')
+PYCSW_SERVER_URL = os.environ.get("PYCSW_SERVER_URL", f'http://localhost:{PYCSW_PORT}')
+PYCSW_URL = os.environ.get("PYCSW_URL", f'{PYCSW_SERVER_URL}/csw')
 PYCSW_DEV_PORT = os.environ.get("PYCSW_DEV_PORT", 5678)
 APP_DIR = os.environ.get("APP_DIR", "/srv/app")
 CKAN_API = "api/3/action/package_search"
 PYCSW_CKAN_SCHEMA = os.environ.get("PYCSW_CKAN_SCHEMA", "iso19139_geodcatap")
 PYCSW_OUTPUT_SCHEMA = os.environ.get("PYCSW_OUTPUT_SCHEMA", "iso19139_inspire")
 DEV_MODE = os.environ.get("DEV_MODE", False)
-PYCSW_CONF = f"{APP_DIR}/pycsw.conf.template" if DEV_MODE == "True" else "pycsw.conf"
+# pycsw 3.0: Use PYCSW_CONFIG environment variable (YAML configuration)
+PYCSW_CONF = os.environ.get("PYCSW_CONFIG", f"{APP_DIR}/pycsw.yml")
 MAPPINGS_FOLDER = "ckan2pycsw/mappings"
 log_module = "[ckan2pycsw]"
 OUPUT_SCHEMA = {
@@ -146,11 +149,14 @@ def main():
     """
     log_file(APP_DIR + "/log")
     logging.info(f"{log_module}:ckan2pycsw | Version: {CKAN_PYCSW_VERSION}")
-    pycsw_config = ConfigParser()
-    pycsw_config.read_file(open(PYCSW_CONF))
-    database_raw = pycsw_config.get("repository", "database")
+    
+    # pycsw 3.0: Read YAML configuration instead of ConfigParser
+    with open(PYCSW_CONF, 'r') as f:
+        pycsw_config = yaml.safe_load(f)
+    
+    database_raw = pycsw_config['repository']['database']
     database = database_raw.replace("${PWD}", os.getcwd()) if DEV_MODE == "True" else database_raw
-    table_name = pycsw_config.get("repository", "table", fallback="records")
+    table_name = pycsw_config['repository'].get('table', 'records')
     context = pycsw.core.config.StaticContext()
 
     # check if cite.db exists in folder, and delete it if it does
@@ -158,10 +164,10 @@ def main():
     
     if pathlib.Path(database_path).exists():
         os.remove(database_path)
-    pycsw.core.admin.setup_db(
+    # pycsw 3.0: setup_db moved to repository.setup
+    setup(
         database,
         table_name,
-        "",
     )
 
     repo = repository.Repository(database, context, table=table_name)
@@ -204,11 +210,12 @@ def main():
     logging.info(f"{log_module}:ckan2pycsw | Create a CSW Endpoint at: {PYCSW_URL}")
 
     # Export records to Folder
-    pycsw.core.admin.export_records(
+    # pycsw 3.0: export_records signature changed
+    admin.export_records(
          context, 
          database, 
-         table=table_name, 
-         xml_dirpath=APP_DIR + "/metadata/")
+         table_name, 
+         APP_DIR + "/metadata/")
 
 
 def run_scheduler():
@@ -230,15 +237,22 @@ def run_scheduler():
 
 def run_tasks():
     """
-    Check if gunicorn is running. Kill any gunicorn process with "gunicorn" or "pycsw.wsgi:application" in its name or command line.
+    Check if gunicorn is running. Kill any gunicorn process with "gunicorn" or "pycsw.wsgi_flask:APP" in its name or command line.
     Execute the main function. Restart gunicorn after the main function finishes.
+
+    pycsw 3.0: Uses Flask-based wsgi_flask.py instead of wsgi.py
+    - Default endpoint "/" is now OGC API - Records
+    - CSW endpoint is now "/csw"
+    - OAI-PMH endpoint is now "/oaipmh"
+    - OpenSearch endpoint is now "/opensearch"
+    - SRU endpoint is now "/sru"
 
     Returns
     -------
     None
     """
     for proc in psutil.process_iter(["pid", "name", "cmdline"]):
-        if "gunicorn" in proc.info["name"] or "pycsw.wsgi:application" in ' '.join(proc.info["cmdline"]):
+        if "gunicorn" in proc.info["name"] or "pycsw.wsgi_flask:APP" in ' '.join(proc.info["cmdline"]):
             print(f"Stopping gunicorn process with PID {proc.info['pid']}...")
             proc.kill()
             time.sleep(5)  # Wait for the gunicorn process to fully stop
@@ -247,8 +261,9 @@ def run_tasks():
     main()
 
     # Restart gunicorn after the main function finishes
+    # pycsw 3.0: Use Flask-based endpoint (wsgi_flask.py)
     try:
-        subprocess.Popen(["pdm", "run", "python3", "-m", "gunicorn", "pycsw.wsgi:application", "-b", f"0.0.0.0:{PYCSW_PORT}"])
+        subprocess.Popen(["pdm", "run", "python3", "-m", "gunicorn", "pycsw.wsgi_flask:APP", "-b", f"0.0.0.0:{PYCSW_PORT}"])
     except Exception as e:
         logging.error(f"{log_module}:ckan2pycsw | Error starting gunicorn: {e}")
 

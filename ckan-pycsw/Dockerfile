@@ -7,15 +7,19 @@ ENV USER_UID=10001
 ENV USER_GID=$USER_UID
 
 # ckan-pycsw envvars
-ENV CKAN_PYCSW_VERSION=1.0.0
+ENV CKAN_PYCSW_VERSION=2.0.0
 ENV APP_DIR=/srv/app
 ENV TZ=UTC
 RUN echo ${TZ} > /etc/timezone
 ENV PYCSW_CKAN_SCHEMA=iso19139_inspire
-ENV PYCSW_CONFIG=${APP_DIR}/pycsw.conf
+# pycsw 3.0: Configuration now in YAML format
+ENV PYCSW_CONFIG=${APP_DIR}/pycsw.yml
 ENV CKAN_URL=http://localhost:5000/
 ENV PYCSW_PORT=8000
-ENV PYCSW_URL=http://localhost:${PYCSW_PORT}/
+# pycsw 3.0: Base URL for server configuration (without endpoint path)
+ENV PYCSW_SERVER_URL=http://localhost:${PYCSW_PORT}
+# pycsw 3.0: CSW endpoint URL (for client access)
+ENV PYCSW_URL=${PYCSW_SERVER_URL}/csw
 ENV DEV_MODE=False
 ENV TIMEOUT=300
 ENV PYCSW_CRON_DAYS_INTERVAL=2
@@ -41,7 +45,9 @@ ENV CSW_IDENTIFICATION_TITLE="Sample Geospatial Catalogue" \
     CSW_INSPIRE_CONFORMITY="notEvaluated" \
     CSW_INSPIRE_CONTACT_NAME=${CSW_CONTACT_NAME} \
     CSW_INSPIRE_CONTACT_EMAIL=${CKAN_SYSADMIN_EMAIL} \
-    CSW_INSPIRE_TEMP_EXTENT="2024-01-01/2024-12-31"
+    CSW_INSPIRE_TEMP_EXTENT="2024-01-01/2024-12-31" \
+    CSW_INSPIRE_TEMP_EXTENT_START=2024-01-01 \
+    CSW_INSPIRE_TEMP_EXTENT_END=2024-12-31
 
 WORKDIR ${APP_DIR}
 
@@ -54,6 +60,7 @@ RUN groupadd --gid $USER_GID $USERNAME \
         wget=1.21-1+deb11u1 \
         gettext-base=0.21-4 \
         curl \
+        git \
     # Remove wait-for
     # wget --progress=dot:mega -O /wait-for https://raw.githubusercontent.com/eficode/wait-for/v2.2.4/wait-for \
     # && chmod +x /wait-for \
@@ -65,7 +72,11 @@ COPY pyproject.toml pdm.lock ./
 RUN pdm install --no-self --group prod
 
 # Update files
-COPY ckan-pycsw/conf/pycsw.conf.template ckan-pycsw/docker-entrypoint.d/entrypoint.sh ./
+# pycsw 3.0: Include both old .conf (for migration) and new .yml templates
+COPY ckan-pycsw/conf/pycsw.conf.template ckan-pycsw/conf/pycsw.yml.template ./
+COPY ckan-pycsw/docker-entrypoint.d/entrypoint.sh ./
+COPY ckan-pycsw/docker-entrypoint.d/migrate_db_pycsw3.sh docker-entrypoint.d/
+RUN chmod +x docker-entrypoint.d/migrate_db_pycsw3.sh
 COPY ckan2pycsw ckan2pycsw
 
 ENTRYPOINT ["/bin/bash", "./entrypoint.sh"]

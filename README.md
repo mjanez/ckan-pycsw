@@ -27,11 +27,18 @@ Available components:
 
 ## Quick start
 ### With docker compose
-Copy the `.env.example` template and configure by changing the `.env` file. Change `PYCSW_URL` and `CKAN_URL`,  as well as the published port `PYCSW_PORT`, if needed.
+Copy the `.env.example` template and configure by changing the `.env` file. Configure the following variables:
+
+- `PYCSW_SERVER_URL`: Base server URL for pycsw configuration (e.g., `http://localhost:8000`)
+- `CKAN_URL`: Your CKAN instance URL
+- `PYCSW_PORT`: Published port for pycsw service
 
 ```shell
 cp .env.example .env
 ```
+
+>**Note**
+> In pycsw 3.0, `PYCSW_SERVER_URL` is used for server configuration (`server.url` in `pycsw.yml`), while `PYCSW_URL` points to the CSW endpoint (`/csw`) for client requests.
 
 Select the CKAN Schema (`PYCSW_CKAN_SCHEMA`), and the pycsw output schema (`PYCSW_OUTPUT_SCHEMA`):
 
@@ -109,10 +116,12 @@ pdm install --no-self --group prod
 
 Configuration:
 ```bash
-PYCSW_URL=http://localhost:8000 envsubst < ckan-pycsw/conf/pycsw.conf.template > pycsw.conf
+# pycsw 3.0 uses YAML configuration
+# PYCSW_SERVER_URL is the server base (no /csw), PYCSW_URL is the CSW endpoint
+PYCSW_SERVER_URL=http://localhost:8000 PYCSW_URL=http://localhost:8000/csw envsubst < ckan-pycsw/conf/pycsw.yml.template > pycsw.yml
 
-# Or update pycsw.conf vars manually
-vi pycsw.conf
+# Or update pycsw.yml vars manually
+vi pycsw.yml
 ```
 
 Generate database and add:
@@ -230,6 +239,19 @@ New metadata schemas can be extended or added to convert elements extracted from
     ```
 
 ## Test
+### pycsw 3.0 Endpoints
+pycsw 3.0 provides multiple API endpoints:
+
+- **OGC API - Records** (default): `http://localhost:8000/`
+- **CSW 2.0/3.0**: `http://localhost:8000/csw`
+- **OAI-PMH**: `http://localhost:8000/oaipmh`
+- **OpenSearch**: `http://localhost:8000/opensearch`
+- **SRU**: `http://localhost:8000/sru`
+
+>**Note**
+> `PYCSW_URL` is configured to point to the CSW endpoint (`/csw`) by default, as it's the primary endpoint for catalog services.
+
+### CSW GetRecords Request
 Perform a `GetRecords` request and return all:
 
     {PYCSW_URL}?request=GetRecords&service=CSW&version=3.0.0&typeNames=gmd:MD_Metadata&outputSchema=http://www.isotc211.org/2005/gmd&elementSetName=full

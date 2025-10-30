@@ -2,7 +2,8 @@
 
 set -xeuo pipefail
 
-envsubst < pycsw.conf.template > pycsw.conf
+# Generate pycsw 3.0 YAML configuration from template
+envsubst < pycsw.yml.template > "${PYCSW_CONFIG}"
 
 # TODO: -Xfrozen_modules=off from: https://bugs.python.org/issue1666807
 
@@ -23,6 +24,10 @@ until curl $SSL_FLAGS --output /dev/null --silent --head --fail "$CKAN_URL"; do
     sleep 5
 done
 echo 'CKAN is available.'
+
+# Run database migration for pycsw 3.0
+echo 'Running pycsw 3.0 database migration...'
+bash docker-entrypoint.d/migrate_db_pycsw3.sh
 
 # Ejecutar el comando Python
 pdm run python3 -Xfrozen_modules=off ckan2pycsw/ckan2pycsw.py
