@@ -28,6 +28,7 @@ ENV CSW_IDENTIFICATION_TITLE="Sample Geospatial Catalogue" \
     CSW_PROVIDER_NAME="ckan-docker development team" \
     CSW_PROVIDER_URL="https://github.com/mjanez/ckan-docker" \
     CSW_CONTACT_NAME="ckan-docker development team" \
+    CKAN_SYSADMIN_EMAIL="96422458+mjanez@users.noreply.github.com" \
     CSW_CONTACT_POSITION="Site Administrator" \
     CSW_CONTACT_ADDRESS="ckan-docker development team" \
     CSW_CONTACT_CITY="Madrid" \
