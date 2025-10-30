@@ -22,7 +22,12 @@ ENV SSL_UNVERIFIED_MODE=False
 
 WORKDIR ${APP_DIR}
 
-# Update files if needed
-COPY ckan-pycsw/conf/pycsw.conf.template ckan-pycsw/docker-entrypoint.d/entrypoint_dev.sh ./
+# Update files
+# pycsw 3.0: Include both old .conf (for migration) and new .yml templates
+COPY ckan-pycsw/conf/pycsw.conf.template ckan-pycsw/conf/pycsw.yml.template ./
+COPY ckan-pycsw/docker-entrypoint.d/entrypoint.sh ./
+COPY ckan-pycsw/docker-entrypoint.d/migrate_db_pycsw3.sh docker-entrypoint.d/
+RUN chmod +x docker-entrypoint.d/migrate_db_pycsw3.sh
+COPY ckan2pycsw ckan2pycsw
 
 ENTRYPOINT ["/bin/bash", "./entrypoint.sh"]

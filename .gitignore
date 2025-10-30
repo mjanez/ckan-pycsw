@@ -13,3 +13,4 @@ samples
 .pdm-python
 .env.*
 doc/dev/*
+*.log

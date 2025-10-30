@@ -22,7 +22,7 @@ server:
 
 logging:
     # Levels: CRITICAL, ERROR, WARNING, INFO, DEBUG
-    level: WARNING
+    level: ERROR
     # logfile: /tmp/pycsw.log
     
 profiles:

@@ -61,6 +61,7 @@ RUN groupadd --gid $USER_GID $USERNAME \
         gettext-base=0.21-4 \
         curl \
         git \
+        sqlite3 \
     # Remove wait-for
     # wget --progress=dot:mega -O /wait-for https://raw.githubusercontent.com/eficode/wait-for/v2.2.4/wait-for \
     # && chmod +x /wait-for \
