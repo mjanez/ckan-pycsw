@@ -1,6 +1,6 @@
 [server]
 home=${PWD}
-url=${PYCSW_URL}
+url=${PYCSW_SERVER_URL}
 mimetype=application/xml; charset=UTF-8
 encoding=UTF-8
 language=en-US

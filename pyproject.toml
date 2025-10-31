@@ -1,33 +1,49 @@
 [project]
 name = "ckan-pycsw"
-version = "2.6.1"
+version = "3.0-dev"
 description = "Populate PyCSW using metadata from a CKAN Open Data catalog"
 authors = [
     {name = "mjanez", email = "96422458+mjanez@users.noreply.github.com"},
 ]
 dependencies = [
-    "pygeometa==0.13.1",
-    "pycsw==2.6.2",
-    "owslib==0.27.2",
-    "setuptools==65.6.0",
-    "sqlalchemy==1.4.44,<2.0",
-    "requests==2.28.1",
-    "shapely==1.8.5.post1",
-    "pyyaml==6.0",
+    "pygeometa==0.14.0",
+    # pycsw 3.0 installed from GitHub (not yet available on PyPI)
+    "pycsw @ git+https://github.com/geopython/pycsw.git@master",
+    # OWSLib 0.29+ required for pycsw 3.0 (md.identification as list)
+    # See: https://github.com/geopython/pycsw/issues/1076
+    "owslib==0.35.0",
+    # pycsw 3.0 standalone requirements (Flask-based multi-API server)
+    "flask==3.1.2",
+    "pygeofilter==0.3.1",
+    "pygeoif==1.6.0",
+    "setuptools==80.9.0",
+    "sqlalchemy>=1.4.0,<2.0",
+    "requests==2.32.5",
+    "shapely==2.1.2",
+    "pyyaml==6.0.3",
     "ptvsd==4.3.2",
-    "debugpy==1.8.0",
-    "simplejson==3.19.1",
-    "apscheduler==3.10.1",
-    "psutil==5.9.5",
-    "urllib3==1.26.20",
-    "gunicorn>=20.1.0",
+    "debugpy==1.8.17",
+    "simplejson==3.20.2",
+    "apscheduler==3.11.0",
+    "psutil==7.1.2",
+    "urllib3==2.5.0",
+    "gunicorn==23.0.0"
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = {text = "GPLv3"}
 
 [project.urls]
 Homepage = "https://github.com/mjanez/ckan-pycsw"
 Repository = "https://github.com/mjanez/ckan-pycsw.git"
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.11.0",
+    "requests-mock>=1.11.0",
+    "flake8>=6.0.0",
+    "safety>=2.3.5",
+]
 
 [build-system]
 requires = ["pdm-pep517>=1.0.0"]

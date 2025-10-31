@@ -523,14 +523,17 @@
                 {% set distribution_type = resource.format.rsplit('/', 1)[-1]|get_mapping_values_dict_from_yaml_list(input_field='format', output_field='identifier', codelist='distribution_type', mappings_folder=mappings_folder + '/inspire') %}
                 {# Detect service type from first resource format if this is a service #}
                 {% if dcat_type == 'service' and not service_type_detected %}
-                    {% set spatial_service = resource.format.upper()|get_mapping_values_dict_from_yaml_list(input_field='format', output_field='uri', codelist='spatial_data_service', mappings_folder=mappings_folder + '/inspire') %}
-                    {% if spatial_service is mapping %}
-                        {% set service_type_detected = spatial_service %}
+                    {# Check if format is not None before calling upper() #}
+                    {% if resource.format is not none and resource.format != "" %}
+                        {% set spatial_service = resource.format.upper()|get_mapping_values_dict_from_yaml_list(input_field='format', output_field='uri', codelist='spatial_data_service', mappings_folder=mappings_folder + '/inspire') %}
+                        {% if spatial_service is mapping %}
+                            {% set service_type_detected = spatial_service %}
+                        {% endif %}
                     {% endif %}
                 {% endif %}
                     "{{ resource.format.lower() }}": {
                         "name": "{{ resource['name'] }}",
-                        {% if resource_type == "service" and 'wms' in resource['format'] or 'wfs' in resource['format'] or 'wmts' in resource['format'] or 'wcs' in resource['format'] or 'ogc' in resource['format'] %}
+                        {% if resource_type == "service" and resource['format'] is not none and ('wms' in resource['format'].lower() or 'wfs' in resource['format'].lower() or 'wmts' in resource['format'].lower() or 'wcs' in resource['format'].lower() or 'ogc' in resource['format'].lower()) %}
                             "description": "{{ resource['description'] }}",
                         {% elif resource['description'] is not none and resource['description'] != "" %}
                             "description": "{{ resource['description'] }}",
@@ -541,18 +544,16 @@
                         {% elif resource['mimetype'] is not none and resource['mimetype'] != "" %}
                             "format_uri": "{{ resource['mimetype'] }}",
                         {% endif %}
-                        {% if resource['format_version'] %}
-                            "format_version": "{{ resource['format_version'] }}",
-                        {% else %}
+                        {% if resource.get('format_version') %}
                             "format_version": "{{ resource['format_version'] }}",
                         {% endif %}
-                        {% if distribution_type is mapping and distribution_type['identifier'] %}
+                        {% if distribution_type is mapping and distribution_type.get('identifier') %}
                             "type": "{{ distribution_type['identifier'] }}",
                         {% else %}
                             "type": "{{ resource['format'] }}",
                         {% endif %}
                         "url": "{{ resource['url'] }}",
-                        {% if 'wfs' in resource['format'] %}
+                        {% if resource['format'] is not none and 'wfs' in resource['format'].lower() %}
                             "function": "download"
                         {% else %}
                         "function": "information"
