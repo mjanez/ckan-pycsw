@@ -329,7 +329,8 @@ def get_mapping_values_dict_from_yaml_list(
     
     output_value = value
     for item in map_yaml:
-        if value in item[input_field]:
+        # Check if input_field exists and is not None before checking membership
+        if input_field in item and item[input_field] is not None and value in item[input_field]:
             if item[output_field] is not None:
                 output_value = item
             else:

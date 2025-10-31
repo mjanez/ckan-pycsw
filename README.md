@@ -32,10 +32,11 @@ List of *containers*:
 #### Built images
 | Repository | pycsw version | Type | Docker tag | Size | Notes |
 | --- | --- | --- | --- | --- | --- |
-| ckan-pycsw | 2.6.1 | base image | `mjanez/ckan-pycsw:latest` | ~346 MB | Development & test latest version |
-| ckan-pycsw | 2.6.2 | base image | `mjanez/ckan-pycsw:2.6.2` | ~330 MB | Last stable release according to [pycsw 2.6.2](https://github.com/geopython/pycsw/tree/2.6.2) |
-| ckan-pycsw | 2.6.1 | base image | `mjanez/ckan-pycsw:2.6.1` | ~330 MB | Stable release according to [pycsw 2.6.1](https://github.com/geopython/pycsw/tree/2.6.1) |
-| ckan-pycsw | 2.6.1 | base image | `mjanez/ckan-pycsw:main` | ~422 MB | Legacy version (v2.6.1 anchor). Deprecated in favor of tagged versions. |
+| ckan-pycsw | 3.0-dev | base image | `mjanez/ckan-pycsw:latest` | ~535 MB | Development & test latest version |
+| ckan-pycsw | 3.0-dev | base image | `mjanez/ckan-pycsw:3.0-dev` | ~535 MB | Last stable release according to [pycsw master (3.0-dev)](https://github.com/geopython/pycsw/tree/master) |
+| ckan-pycsw | 2.6.2 | base image | `mjanez/ckan-pycsw:2.6.2` | ~346 MB | Last stable release according to [pycsw 2.6.2](https://github.com/geopython/pycsw/tree/2.6.2) |
+| ckan-pycsw | 2.6.1 | base image | `mjanez/ckan-pycsw:2.6.1` | ~346 MB | Stable release according to [pycsw 2.6.1](https://github.com/geopython/pycsw/tree/2.6.1) |
+| ckan-pycsw | 2.6.1 | base image | `mjanez/ckan-pycsw:main` | ~442 MB | Deprecated and only maintained for legacy systems (pin to version `ckan-pycsw:2.6.1`). |
 
 #### Base images
 | Repository | Type | Docker tag | Size | Notes |
@@ -53,11 +54,18 @@ List of *containers*:
 
 ## Quick start
 ### With docker compose
-Copy the `.env.example` template and configure by changing the `.env` file. Change `PYCSW_URL` and `CKAN_URL`,  as well as the published port `PYCSW_PORT`, if needed.
+Copy the `.env.example` template and configure by changing the `.env` file. Configure the following variables:
+
+- `PYCSW_SERVER_URL`: Base server URL for pycsw configuration (e.g., `http://localhost:8000`)
+- `CKAN_URL`: Your CKAN instance URL
+- `PYCSW_PORT`: Published port for pycsw service
 
 ```shell
 cp .env.example .env
 ```
+
+>**Note**
+> In pycsw 3.0, `PYCSW_SERVER_URL` is used for server configuration (`server.url` in `pycsw.yml`), while `PYCSW_URL` points to the CSW endpoint (`/csw`) for client requests.
 
 Select the CKAN Schema (`PYCSW_CKAN_SCHEMA`), and the pycsw output schema (`PYCSW_OUTPUT_SCHEMA`):
 
@@ -130,15 +138,17 @@ python3 -m pipx ensurepath --force
 
 # You will need to open a new terminal or re-login for the PATH changes to take effect.
 pipx install pdm
-pdm install --no-self --group prod
+pdm install --no-self
 ```
 
 Configuration:
 ```bash
-PYCSW_URL=http://localhost:8000 envsubst < ckan-pycsw/conf/pycsw.conf.template > pycsw.conf
+# pycsw 3.0 uses YAML configuration
+# PYCSW_SERVER_URL is the server base (no /csw), PYCSW_URL is the CSW endpoint
+PYCSW_SERVER_URL=http://localhost:8000 PYCSW_URL=http://localhost:8000/csw envsubst < ckan-pycsw/conf/pycsw.yml.template > pycsw.yml
 
-# Or update pycsw.conf vars manually
-vi pycsw.conf
+# Or update pycsw.yml vars manually
+vi pycsw.yml
 ```
 
 Generate database and add:
@@ -151,7 +161,7 @@ bash doc/scripts/00_ennvars.sh
 
 Run ckan2pycsw:
 ```bash
-PYCSW_CONFIG=pycsw.conf pdm run python3 ckan2pycsw/ckan2pycsw.py
+PYCSW_CONFIG=pycsw.yml pdm run python3 ckan2pycsw/ckan2pycsw.py
 ```
 
 ## Schema development
@@ -256,6 +266,52 @@ New metadata schemas can be extended or added to convert elements extracted from
     ```
 
 ## Test
+### Automated Testing
+The project includes a comprehensive test suite using pytest. Tests validate:
+
+- CKAN to ISO19139 XML transformation
+- pycsw 3.0 compatibility with OWSLib ≥0.29.0
+- None value handling in Service datasets
+- All DCAT types (Dataset, Series, Service)
+
+#### Run tests with Docker (Recommended)
+```bash
+# Run all tests in isolated environment
+docker compose -f docker-compose.test.yml up --abort-on-container-exit
+
+# Cleanup
+docker compose -f docker-compose.test.yml down -v
+```
+
+#### Run tests with PDM (Development)
+```bash
+cd ckan-pycsw
+
+# Install dev dependencies
+pdm install -d
+
+# Run all tests
+pdm run pytest tests/ -v
+
+# Run with coverage
+pdm run pytest tests/ --cov=ckan2pycsw --cov-report=html
+```
+
+For detailed testing documentation, see [`tests/README.md`](tests/README.md).
+
+### pycsw 3.0 Endpoints
+pycsw 3.0 provides multiple API endpoints:
+
+- **OGC API - Records** (default): `http://localhost:8000/`
+- **CSW 2.0/3.0**: `http://localhost:8000/csw`
+- **OAI-PMH**: `http://localhost:8000/oaipmh`
+- **OpenSearch**: `http://localhost:8000/opensearch`
+- **SRU**: `http://localhost:8000/sru`
+
+>**Note**
+> `PYCSW_URL` is configured to point to the CSW endpoint (`/csw`) by default, as it's the primary endpoint for catalog services.
+
+### CSW GetRecords Request
 Perform a `GetRecords` request and return all:
 
     {PYCSW_URL}?request=GetRecords&service=CSW&version=3.0.0&typeNames=gmd:MD_Metadata&outputSchema=http://www.isotc211.org/2005/gmd&elementSetName=full
@@ -268,19 +324,53 @@ Perform a `GetRecords` request and return all:
 > The `GetRecords` operation allows clients to discover resources (datasets). The response is an `XML` document and the output schema can be specified.
 
 ## Debug
-### VSCode
-#### Python debugger with Docker
-1. Build and run container.
-2. Attach Visual Studio Code to container.
-3. Start debugging on `ckan2pycsw.py` Python file (`Debug the currently active Python file`) in the container.
+### VSCode with debugpy
+The development environment uses **debugpy** (Microsoft's Python debugger) for remote debugging.
 
-#### Python debugger without Docker
-1. Update the previously created `.env` file in the root of the `ckan-ogc` repo and move it to: [`/ckan2pycsw`](/ckan2pycsw)
-2. Open [`ckan2pycsw.py`](/ckan2pycsw/ckan2pycsw.py).
-3. Start debugging on `ckan2pycsw.py` Python file (`Debug the currently active Python file`). 
+#### Python debugger with Docker (Remote Attach)
+1. Build and run dev container:
+
+    ```bash
+    docker compose -f docker-compose.dev.yml up -d --build
+    ```
+
+2. In VS Code, use the **"Python: Remote Attach (debugpy)"** configuration (`.vscode/launch.json`):
+   - Connects to `localhost:5678`
+   - Path mappings configured for `/srv/app/ckan2pycsw`
+
+3. Set breakpoints in your code and start debugging
+
+4. The container will wait for debugger to attach before running
 
 > [!NOTE]
-> By default, the Python extension looks for and loads a file named `.env` in the current workspace folder. More info about Python debugger and [Enviromental variables use](https://code.visualstudio.com/docs/python/environments#_environment-variables).
+> We upgraded from deprecated `ptvsd` to `debugpy` for better compatibility and performance.
+
+#### Python debugger without Docker (Local)
+1. Install dev dependencies:
+   ```bash
+   cd ckan-pycsw
+   pdm install -d
+   ```
+
+2. Use one of these VS Code debug configurations:
+   - **"Python: Current File"**: Debug the active Python file
+   - **"Python: Pytest Current File"**: Debug tests in active file
+   - **"Python: Pytest All Tests"**: Debug all tests
+
+3. Set breakpoints and press F5 to start debugging
+
+> [!NOTE]
+> By default, the Python extension looks for and loads a file named `.env` in the current workspace folder. More info about Python debugger and [Environment variables use](https://code.visualstudio.com/docs/python/environments#_environment-variables).
+
+### Debugging Configuration
+VS Code launch configurations are provided in `.vscode/launch.json`:
+
+- **Remote Attach**: Attach to Docker container debugger (port 5678)
+- **Current File**: Debug any Python file locally
+- **Pytest Current File**: Debug tests in active file
+- **Pytest All Tests**: Debug entire test suite
+
+For detailed debugging information, see [`tests/README.md`](tests/README.md).
 
 
 [^1]: Extends the @frafra [coat2pycsw](https://github.com/COATnor/coat2pycsw) package.
