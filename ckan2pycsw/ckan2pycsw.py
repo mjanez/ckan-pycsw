@@ -44,7 +44,7 @@ try:
 except (KeyError, ValueError):
     PYCSW_CRON_HOUR_START = 4
 method = "nightly"
-CKAN_PYCSW_VERSION = os.environ.get("CKAN_PYCSW_VERSION", "1.0.0")
+CKAN_PYCSW_VERSION = os.environ.get("CKAN_PYCSW_VERSION", "3.0-dev")
 URL = os.environ.get("CKAN_URL", 'http://localhost:5000/')
 PYCSW_PORT = os.environ.get("PYCSW_PORT", 8000)
 PYCSW_SERVER_URL = os.environ.get("PYCSW_SERVER_URL", f'http://localhost:{PYCSW_PORT}')

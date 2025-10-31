@@ -10,7 +10,7 @@ ENV USER_UID=10001
 ENV USER_GID=$USER_UID
 
 # ckan-pycsw envvars
-ENV CKAN_PYCSW_VERSION=2.0.0
+ENV CKAN_PYCSW_VERSION=3.0-dev
 ENV APP_DIR=/srv/app
 ENV TZ=UTC
 RUN echo ${TZ} > /etc/timezone
