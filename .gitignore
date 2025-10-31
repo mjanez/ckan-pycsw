@@ -14,3 +14,4 @@ samples
 .env.*
 doc/dev/*
 *.log
+doc/csw

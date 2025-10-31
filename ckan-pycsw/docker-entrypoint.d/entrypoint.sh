@@ -3,7 +3,8 @@
 set -xeuo pipefail
 
 # Generate pycsw 3.0 YAML configuration from template
-envsubst < pycsw.yml.template > "${PYCSW_CONFIG}"
+# PYCSW_CONFIG should be set to pycsw.yml (not pycsw.conf for pycsw 3.0)
+envsubst < pycsw.yml.template > "${PYCSW_CONFIG:-pycsw.yml}"
 
 # TODO: -Xfrozen_modules=off from: https://bugs.python.org/issue1666807
 

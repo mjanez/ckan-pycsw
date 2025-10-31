@@ -2,7 +2,9 @@
 
 set -xeuo pipefail
 
-envsubst < pycsw.conf.template > pycsw.conf
+# Generate pycsw 3.0 YAML configuration from template
+# PYCSW_CONFIG should be set to pycsw.yml (not pycsw.conf for pycsw 3.0)
+envsubst < pycsw.yml.template > "${PYCSW_CONFIG:-pycsw.yml}"
 
 # Check if SSL_UNVERIFIED_MODE is enabled
 if [ "${SSL_UNVERIFIED_MODE:-false}" = "true" ] || [ "${SSL_UNVERIFIED_MODE:-false}" = "True" ]; then
@@ -22,7 +24,7 @@ until curl $SSL_FLAGS --output /dev/null --silent --head --fail "$CKAN_URL"; do
 done
 echo 'CKAN is available.'
 
-# Execute Python command with debugging
-pdm run python3 -m ptvsd --host 0.0.0.0 --port "$PYCSW_DEV_PORT" --wait ckan2pycsw/ckan2pycsw.py
+# Execute Python command with debugging (using debugpy instead of deprecated ptvsd)
+python3 -m debugpy --listen 0.0.0.0:${PYCSW_DEV_PORT} --wait-for-client ckan2pycsw/ckan2pycsw.py
 
 exec "$@"
